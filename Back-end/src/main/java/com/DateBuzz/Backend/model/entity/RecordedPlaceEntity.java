@@ -1,6 +1,7 @@
 package com.DateBuzz.Backend.model.entity;
 
 
+import com.DateBuzz.Backend.controller.requestDto.RecordedPlaceRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
@@ -38,6 +39,22 @@ public class RecordedPlaceEntity {
     private Timestamp updatedAt;
 
     private Timestamp deletedAt;
+
+    public static RecordedPlaceEntity FromRecordedRequestDtoAndRecordEntity(RecordedPlaceRequestDto recordedPlaceDto, RecordEntity record) {
+        RecordedPlaceEntity recordedPlace = new RecordedPlaceEntity();
+        recordedPlace.record = record;
+        recordedPlace.orders = recordedPlaceDto.getOrders();
+        recordedPlace.placeName = recordedPlaceDto.getPlaceName();
+        recordedPlace.addressOld = recordedPlaceDto.getAddressOld();
+        recordedPlace.addressRoad = recordedPlaceDto.getAddressRoad();
+        recordedPlace.addressGu = recordedPlaceDto.getAddressGu();
+        recordedPlace.addressX = recordedPlaceDto.getAddressX();
+        recordedPlace.addressY = recordedPlaceDto.getAddressY();
+        recordedPlace.image = recordedPlaceDto.getImage();
+        recordedPlace.placeContent = recordedPlaceDto.getPlaceContent();
+        return recordedPlace;
+    }
+
     @PrePersist
     void registeredAt(){
         this.createdAt = Timestamp.from(Instant.now());
