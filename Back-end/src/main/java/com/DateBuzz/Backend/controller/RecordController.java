@@ -2,7 +2,7 @@ package com.DateBuzz.Backend.controller;
 
 import com.DateBuzz.Backend.controller.requestDto.RecordRequestDto;
 import com.DateBuzz.Backend.controller.responseDto.RecordResponseDto;
-import com.DateBuzz.Backend.service.PostService;
+import com.DateBuzz.Backend.service.RecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,17 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class PostController {
+public class RecordController {
 
-    private final PostService postService;
+    private final RecordService recordService;
 
     @GetMapping("/community")
     private Page<RecordResponseDto> list(Pageable pageable){
-        return postService.getList(pageable);
+        return recordService.getList(pageable);
     }
 
     @PostMapping("/community")
-    private void records(@RequestBody RecordRequestDto requestDto){
-        postService.writes(requestDto);
+    private void records(@RequestBody RecordRequestDto requestDto) throws Exception {
+        recordService.writes(requestDto);
     }
 }
