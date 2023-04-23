@@ -2,11 +2,13 @@ package com.DateBuzz.Backend.controller.responseDto;
 
 import com.DateBuzz.Backend.model.entity.RecordEntity;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 @AllArgsConstructor
 public class RecordResponseDto {
     private Long recordedId;

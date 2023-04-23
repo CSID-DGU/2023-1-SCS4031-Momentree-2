@@ -2,7 +2,9 @@ package com.DateBuzz.Backend.controller.responseDto;
 
 import com.DateBuzz.Backend.model.entity.RecordedPlaceEntity;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public class RecordedPlaceResponseDto {
 
