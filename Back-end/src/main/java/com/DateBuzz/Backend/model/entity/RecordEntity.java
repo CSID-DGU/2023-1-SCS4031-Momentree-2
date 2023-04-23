@@ -24,6 +24,7 @@ public class RecordEntity {
     private String title;
     private String recordedContent;
 
+
     private Exposure exposure;
 
     private Timestamp createdAt;
