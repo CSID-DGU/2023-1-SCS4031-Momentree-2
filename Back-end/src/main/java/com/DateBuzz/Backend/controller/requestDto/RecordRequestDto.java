@@ -15,5 +15,6 @@ public class RecordRequestDto {
     private String recordContent;
     private List<HashtagRequestDto> hashtags;
     private List<RecordedPlaceRequestDto> recordedPlaces;
+    private String exposure;
 
 }
