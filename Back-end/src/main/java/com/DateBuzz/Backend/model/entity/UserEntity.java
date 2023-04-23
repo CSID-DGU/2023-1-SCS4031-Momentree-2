@@ -18,5 +18,26 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String userName;
+
+    private String password;
+
+    private String profileImg;
+
+    private Timestamp registeredAt;
+
+    private Timestamp updatedAt;
+
+    private Timestamp deletedAt;
+
+    @PrePersist
+    void registeredAt(){
+        this.registeredAt = Timestamp.from(Instant.now());
+    }
+    @PreUpdate
+    void updatedAt(){
+        this.updatedAt = Timestamp.from(Instant.now());
+    }
+
 
 }
