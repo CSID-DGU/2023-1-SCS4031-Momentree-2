@@ -15,7 +15,7 @@ public class RecordedPlaceResponseDto {
         return new RecordedPlaceResponseDto(
                 recordedPlace.getId(),
                 recordedPlace.getRecord().getId(),
-                recordedPlace.getOrder(),
+                recordedPlace.getOrders(),
                 recordedPlace.getPlaceName()
         );
     }

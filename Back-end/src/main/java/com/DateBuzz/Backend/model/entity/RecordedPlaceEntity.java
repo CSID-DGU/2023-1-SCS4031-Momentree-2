@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "recorded_place")
+@Table(name = "\"recorded_place\"")
 @SQLDelete(sql = "update \"recorded_place\" set deleted_at = now() where id = ?")
 @Where(clause = "deleted_at is null")
 @Getter
@@ -24,7 +24,7 @@ public class RecordedPlaceEntity {
     @JoinColumn(name = "record_id")
     private RecordEntity record;
 
-    private int order;
+    private int orders;
     private String placeName;
     private String addressOld;
     private String addressRoad;
@@ -34,7 +34,6 @@ public class RecordedPlaceEntity {
     private String image;
     private String placeContent;
     private Timestamp createdAt;
-
 
     private Timestamp updatedAt;
 
