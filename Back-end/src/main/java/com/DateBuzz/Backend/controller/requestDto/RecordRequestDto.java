@@ -12,7 +12,7 @@ public class RecordRequestDto {
     private String userName;
     private String title;
     private LocalDate dateDate;
-    private String recordContent;
+    private String recordedContent;
     private List<HashtagRequestDto> hashtags;
     private List<RecordedPlaceRequestDto> recordedPlaces;
     private String exposure;

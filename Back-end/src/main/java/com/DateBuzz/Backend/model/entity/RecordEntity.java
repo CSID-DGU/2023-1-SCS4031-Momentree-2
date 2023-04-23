@@ -51,7 +51,7 @@ public class RecordEntity {
         RecordEntity record = new RecordEntity();
         record.user = user;
         record.title = requestDto.getTitle();
-        record.recordedContent = requestDto.getRecordContent();
+        record.recordedContent = requestDto.getRecordedContent();
         record.dateDate = requestDto.getDateDate();
         record.exposure = Exposure.returnExposure(requestDto.getExposure());
         return record;

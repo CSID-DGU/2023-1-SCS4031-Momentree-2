@@ -1,5 +1,6 @@
 package com.DateBuzz.Backend.model.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
@@ -26,10 +27,11 @@ public class UserEntity {
 
     private String profileImg;
 
+    @Nullable
     private Timestamp createdAt;
-
+    @Nullable
     private Timestamp updatedAt;
-
+    @Nullable
     private Timestamp deletedAt;
 
     @PrePersist
