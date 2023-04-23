@@ -24,7 +24,7 @@ public class RecordEntity {
     private String title;
     private String recordedContent;
 
-
+    @Enumerated(EnumType.STRING)
     private Exposure exposure;
 
     private Timestamp createdAt;
