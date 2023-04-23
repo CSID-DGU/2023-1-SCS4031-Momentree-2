@@ -2,6 +2,7 @@ package com.DateBuzz.Backend.model.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -12,7 +13,8 @@ import java.time.Instant;
 @Table(name = "recorded_place")
 @SQLDelete(sql = "update \"recorded_place\" set deleted_at = now() where id = ?")
 @Where(clause = "deleted_at is null")
-public class RecordedPlace {
+@Getter
+public class RecordedPlaceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
