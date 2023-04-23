@@ -1,13 +1,19 @@
 package com.DateBuzz.Backend.service;
 
+import com.DateBuzz.Backend.controller.requestDto.HashtagRequestDto;
 import com.DateBuzz.Backend.controller.requestDto.RecordRequestDto;
+import com.DateBuzz.Backend.controller.requestDto.RecordedPlaceRequestDto;
 import com.DateBuzz.Backend.controller.responseDto.RecordResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.RecordedPlaceResponseDto;
+import com.DateBuzz.Backend.model.entity.HashtagEntity;
 import com.DateBuzz.Backend.model.entity.RecordEntity;
 import com.DateBuzz.Backend.model.entity.RecordedPlaceEntity;
+import com.DateBuzz.Backend.model.entity.UserEntity;
+import com.DateBuzz.Backend.repository.HashtagRepository;
 import com.DateBuzz.Backend.repository.RecordRepository;
 import com.DateBuzz.Backend.repository.RecordedPlaceRepository;
 import com.DateBuzz.Backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -15,19 +21,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
-public class PostService {
+@RequiredArgsConstructor
+public class RecordService {
 
-    private RecordRepository recordRepository;
-    private RecordedPlaceRepository recordedPlaceRepository;
+    private final RecordRepository recordRepository;
+    private final RecordedPlaceRepository recordedPlaceRepository;
     private final UserRepository userRepository;
+    private final HashtagRepository hashtagRepository;
 
-    public PostService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public Page<RecordResponseDto> getList(Pageable pageable) {
 
@@ -48,9 +51,18 @@ public class PostService {
     }
 
     public void writes(RecordRequestDto requestDto) throws Exception {
-        userRepository
+        UserEntity user = userRepository
                 .findByUserName(requestDto.getUserName())
                 .orElseThrow(Exception::new);
-        requestDto.getHashtags()
+        RecordEntity record = RecordEntity.FromRecordRequestDtoAndUserEntity(requestDto, user);
+        recordRepository.saveAndFlush(record);
+        for(HashtagRequestDto hashtags: requestDto.getHashtags()){
+            HashtagEntity hashtag = HashtagEntity.FromRecordRequestDtoAndRecordEntity(hashtags, record);
+            hashtagRepository.save(hashtag);
+        }
+        for(RecordedPlaceRequestDto recordedPlaces: requestDto.getRecordedPlaces()){
+            RecordedPlaceEntity recordedPlace = RecordedPlaceEntity.FromRecordedRequestDtoAndRecordEntity(recordedPlaces, record);
+            recordedPlaceRepository.save(recordedPlace);
+        }
     }
 }
