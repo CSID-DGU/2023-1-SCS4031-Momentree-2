@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "USER")
+@Table(name = "\"user\"")
 @SQLDelete(sql = "update \"user\" set deleted_at = now() where id = ?")
 @Where(clause = "deleted_at is null")
 public class UserEntity {

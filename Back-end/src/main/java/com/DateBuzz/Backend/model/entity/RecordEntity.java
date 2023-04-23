@@ -8,8 +8,8 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "POSTS")
-@SQLDelete(sql = "update \"posts\" set deleted_at = now() where id = ?")
+@Table(name = "\"record\"")
+@SQLDelete(sql = "update \"record\" set deleted_at = now() where id = ?")
 @Where(clause = "deleted_at is null")
 public class RecordEntity {
 
