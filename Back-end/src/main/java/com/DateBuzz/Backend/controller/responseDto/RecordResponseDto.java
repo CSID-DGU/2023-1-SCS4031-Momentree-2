@@ -20,9 +20,9 @@ public class RecordResponseDto {
     private int likeCnt;
     private int bookMarkCnt;
 
-    private List<RecordResponseDto> recordResponseDtos;
+    private List<RecordedPlaceResponseDto> recordedPlaces;
 
-    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordResponseDto> recordResponseDtos){
+    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces){
         return new RecordResponseDto(
                 record.getId(),
                 record.getUser().getUserName(),
@@ -32,7 +32,7 @@ public class RecordResponseDto {
                 true,
                 134,
                 23,
-                recordResponseDtos
+                recordedPlaces
         );
     }
 
