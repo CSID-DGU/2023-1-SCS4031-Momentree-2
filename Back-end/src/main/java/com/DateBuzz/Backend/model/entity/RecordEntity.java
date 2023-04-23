@@ -4,27 +4,30 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-
 import java.sql.Timestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "USER")
-@SQLDelete(sql = "update \"user\" set deleted_at = now() where id = ?")
+@Table(name = "POSTS")
+@SQLDelete(sql = "update \"posts\" set deleted_at = now() where id = ?")
 @Where(clause = "deleted_at is null")
-public class UserEntity {
+public class RecordEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String userName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
-    private String password;
+    private String title;
+    private String recordedContent;
 
-    private String profileImg;
+    private Exposure exposure;
 
     private Timestamp createdAt;
+
 
     private Timestamp updatedAt;
 
@@ -38,6 +41,4 @@ public class UserEntity {
     void updatedAt(){
         this.updatedAt = Timestamp.from(Instant.now());
     }
-
-
 }
