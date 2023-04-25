@@ -1,7 +1,6 @@
 package com.DateBuzz.Backend.model.entity;
 
 import com.DateBuzz.Backend.controller.requestDto.HashtagRequestDto;
-import com.DateBuzz.Backend.controller.requestDto.RecordRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 
