@@ -20,11 +20,26 @@ mood_activity_df = mood_activity_df.drop(['mood', 'activity'], axis=1)
 mood_activity_df['mood_activity'] = mood_activity_df['mood_activity'].apply(lambda x: re.sub('[^가-힣\s]', '', x))
 #print(mood_activity_df)
 
-#개수와 게시글에 사용된 태그를 담은 리스트 생성
+#게시글 개수와 게시글에 사용된 태그를 담은 리스트 생성
+total_count = len(mood_activity_df)
 tag_list = []
 for tags in mood_activity_df['mood_activity']:
     print(tags)
     tag_list += tags.split(' ')
     tag_list = list(set(tag_list))
 
+# 단어의 가중치를 파악하기 위해 모든 문서에서 단어가 몇 번 사용되었는지 확인
+tag_count = dict.fromkeys(tag_list)
+#print(tag_count)
 
+for each_tag_list in mood_activity_df['mood_activity']:
+    for tag in each_tag_list.split(' '):
+        tag = tag.strip()
+        if tag_count[tag] == None:
+            tag_count[tag] = 1
+        else:
+            tag_count[tag] = tag_count[tag]+1 
+
+#빈도수를 바탕으로 단어의 가중치 계산
+for each_tag in tag_count:
+    tag_count[each_tag] = np.log10(total_count/tag_count[each_tag])
