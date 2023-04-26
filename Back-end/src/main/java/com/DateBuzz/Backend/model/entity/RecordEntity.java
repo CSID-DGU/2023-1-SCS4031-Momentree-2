@@ -1,12 +1,8 @@
 package com.DateBuzz.Backend.model.entity;
 
 import com.DateBuzz.Backend.controller.requestDto.RecordRequestDto;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
