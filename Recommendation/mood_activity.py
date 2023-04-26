@@ -19,3 +19,12 @@ mood_activity_df = mood_activity_df.drop(['mood', 'activity'], axis=1)
 #한글이 아닌 문자들이 들어가있는 경우 전처리
 mood_activity_df['mood_activity'] = mood_activity_df['mood_activity'].apply(lambda x: re.sub('[^가-힣\s]', '', x))
 #print(mood_activity_df)
+
+#개수와 게시글에 사용된 태그를 담은 리스트 생성
+tag_list = []
+for tags in mood_activity_df['mood_activity']:
+    print(tags)
+    tag_list += tags.split(' ')
+    tag_list = list(set(tag_list))
+
+
