@@ -8,47 +8,71 @@ from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
+#print를 위한 함수
+def print_dictionary(dic_name):
+    for key, value in dic_name.items():
+        print(f"{key}: {value}")
+
+#비슷한 태그 remove 함수
+def remove_similar_item(list):
+    new_list = []
+    for i in range(len(list)):
+        # 첫번째 요소일 경우 그대로 추가
+        if i == 0:
+            new_list.append(list[i])
+        else:
+            # 앞서 추가된 요소들과 앞 세 글자가 겹치지 않으면 추가
+            for j in range(len(new_list)):
+                if new_list[j][:3] == list[i][:3]:
+                    break
+            else:
+                new_list.append(list[i])
+    return new_list
+
+
+#--------------------Data경로 > 이후에 database와 연동해야 함--------------------
 path = '/Users/seoyoung/Desktop/DateBuzz/Recommendation/data'
 
-#mood_activity가 담긴 파일로 dataframe생성
-mood_activity_df = pd.read_csv(os.path.join(path, 'mood.csv'), encoding='utf-8')
-#두 가지로 열로 나눠져있는 것을 하나로 통합
-mood_activity_df['mood_activity'] = mood_activity_df.apply(lambda x: ', '.join([x['mood'], x['activity']]), axis=1)
+#--------------------01. Data가져오기--------------------
+#static_tag가 담긴 파일로 csv파일을 읽어옴
+static_tag_df = pd.read_csv(os.path.join(path, 'mood.csv'), encoding='utf-8')
+
+#--------------------02. Data전처리--------------------
+#mood, activity 두 가지로 열로 나눠져있는 것을 하나의 열로 통합
+static_tag_df['mood_activity'] = static_tag_df.apply(lambda x: ', '.join([x['mood'], x['activity']]), axis=1)
 #하나로 통합한 열을 하나 만들었으므로 기존의 열은 삭제
-mood_activity_df = mood_activity_df.drop(['mood', 'activity'], axis=1)
+static_tag_df = static_tag_df.drop(['mood', 'activity'], axis=1)
 #한글이 아닌 문자들이 들어가있는 경우 전처리
-mood_activity_df['mood_activity'] = mood_activity_df['mood_activity'].apply(lambda x: re.sub('[^가-힣\s]', '', x))
-#print(mood_activity_df)
+static_tag_df['mood_activity'] = static_tag_df['mood_activity'].apply(lambda x: re.sub('[^가-힣\s]', '', x))
+#print(static_tag_df)
 
-#게시글 개수와 게시글에 사용된 태그를 담은 리스트 생성
-total_count = len(mood_activity_df)
-tag_list = []
-for tags in mood_activity_df['mood_activity']:
+#----------------03. 게시글에 사용된 태그 목록 생성--------------------
+total_count = len(static_tag_df)
+static_tag_list = []
+for tags in static_tag_df['mood_activity']:
     print(tags)
-    tag_list += tags.split(' ')
-    tag_list = list(set(tag_list))
+    static_tag_list += tags.split(' ')
+    static_tag_list = list(set(static_tag_list))
+static_tag_list = remove_similar_item(static_tag_list)
+#print(static_tag_list)
 
-# 단어의 가중치를 파악하기 위해 모든 문서에서 단어가 몇 번 사용되었는지 확인
-tag_count = dict.fromkeys(tag_list)
-#print(tag_count)
-
-for each_tag_list in mood_activity_df['mood_activity']:
-    for tag in each_tag_list.split(' '):
+#--------------------04. 단어의 가중치 파악--------------------
+tag_count = dict.fromkeys(static_tag_list)
+for each_static_tag in static_tag_df['mood_activity']:
+    for tag in each_static_tag.split(' '):
         tag = tag.strip()
-        if tag_count[tag] == None:
-            tag_count[tag] = 1
+        if tag in tag_count:
+            if tag_count[tag] == None:
+                tag_count[tag] = 1
+            else:
+                tag_count[tag] = tag_count[tag]+1 
         else:
-            tag_count[tag] = tag_count[tag]+1 
+            continue
+#print_dictionary(tag_count)
 
-#빈도수를 바탕으로 단어의 가중치 계산
-for each_tag in tag_count:
-    tag_count[each_tag] = np.log10(total_count/tag_count[each_tag])
+# #빈도수를 바탕으로 단어의 가중치 계산
+for each_static_tag in tag_count:
+    tag_count[each_static_tag] = np.log10(total_count/tag_count[each_static_tag])
+print_dictionary(tag_count)
 
-
-# IDF를 바탕으로한 게시물 representation 생성
-tag_representation = pd.DataFrame(columns=sorted(tag_list), index=mood_activity_df.index)
-
-# 1번 영화가 속한 장르에 대해 가중치를 가져옴. 가중치를 부여함.
-# 본인이 해당되는 장르에 가중치가 부여됨.
-# 1번의 경우 Adventure는 그렇게 중요한 feature가 아니고, Animation이 중요한 feature임
-print('hello')
+#태그 가중치를 반영한 태그 representation
