@@ -27,11 +27,10 @@ public class UserEntity {
 
     private String profileImg;
 
-    @Nullable
+    private String nickname;
+
     private Timestamp createdAt;
-    @Nullable
     private Timestamp updatedAt;
-    @Nullable
     private Timestamp deletedAt;
 
     @PrePersist
