@@ -43,3 +43,12 @@ for each_tag_list in mood_activity_df['mood_activity']:
 #빈도수를 바탕으로 단어의 가중치 계산
 for each_tag in tag_count:
     tag_count[each_tag] = np.log10(total_count/tag_count[each_tag])
+
+
+# IDF를 바탕으로한 게시물 representation 생성
+tag_representation = pd.DataFrame(columns=sorted(tag_list), index=mood_activity_df.index)
+
+# 1번 영화가 속한 장르에 대해 가중치를 가져옴. 가중치를 부여함.
+# 본인이 해당되는 장르에 가중치가 부여됨.
+# 1번의 경우 Adventure는 그렇게 중요한 feature가 아니고, Animation이 중요한 feature임
+print('hello')
