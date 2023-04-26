@@ -3,7 +3,9 @@ import re
 import pandas as pd
 import numpy as np
 
+
 from tqdm import tqdm
+from tabulate import tabulate
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
@@ -50,7 +52,6 @@ static_tag_df['mood_activity'] = static_tag_df['mood_activity'].apply(lambda x: 
 total_count = len(static_tag_df)
 static_tag_list = []
 for tags in static_tag_df['mood_activity']:
-    print(tags)
     static_tag_list += tags.split(' ')
     static_tag_list = list(set(static_tag_list))
 static_tag_list = remove_similar_item(static_tag_list)
@@ -73,6 +74,17 @@ for each_static_tag in static_tag_df['mood_activity']:
 # #빈도수를 바탕으로 단어의 가중치 계산
 for each_static_tag in tag_count:
     tag_count[each_static_tag] = np.log10(total_count/tag_count[each_static_tag])
-print_dictionary(tag_count)
+#print_dictionary(tag_count)
 
 #태그 가중치를 반영한 태그 representation
+static_tag_representation = pd.DataFrame(columns=sorted(static_tag_list), index=static_tag_df.index)
+#print(static_tag_representation)
+for index, each_row in tqdm(static_tag_df.iterrows()):
+    dict_temp = {} 
+    for tag in each_row['mood_activity'].split(' '):
+        if tag in tag_count:
+            dict_temp[tag] = tag_count[tag]
+    row_to_add = pd.DataFrame(dict_temp, index=[index])
+    static_tag_representation.update(row_to_add)
+print(static_tag_representation)
+#print(tabulate(static_tag_representation, tablefmt='fancy_outline'))
