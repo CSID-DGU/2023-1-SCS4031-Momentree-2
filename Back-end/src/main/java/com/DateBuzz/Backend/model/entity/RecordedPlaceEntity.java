@@ -25,19 +25,25 @@ public class RecordedPlaceEntity {
     @JoinColumn(name = "record_id")
     private RecordEntity record;
 
+    @Column(name = "orders")
     private int orders;
+    @Column(name = "place_name")
     private String placeName;
-    private String addressOld;
-    private String addressRoad;
+    @Column(name = "address")
+    private String address;
+    @Column(name = "address_gu")
     private String addressGu;
+    @Column(name = "address_x")
     private String addressX;
+    @Column(name = "address_y")
     private String addressY;
-    private String image;
+    @Column(name = "place_content")
     private String placeContent;
+    @Column(name = "created_at")
     private Timestamp createdAt;
-
+    @Column(name = "updated_at")
     private Timestamp updatedAt;
-
+    @Column(name = "deleted_at")
     private Timestamp deletedAt;
 
     public static RecordedPlaceEntity FromRecordedRequestDtoAndRecordEntity(RecordedPlaceRequestDto recordedPlaceDto, RecordEntity record) {
@@ -45,12 +51,9 @@ public class RecordedPlaceEntity {
         recordedPlace.record = record;
         recordedPlace.orders = recordedPlaceDto.getOrders();
         recordedPlace.placeName = recordedPlaceDto.getPlaceName();
-        recordedPlace.addressOld = recordedPlaceDto.getAddressOld();
-        recordedPlace.addressRoad = recordedPlaceDto.getAddressRoad();
         recordedPlace.addressGu = recordedPlaceDto.getAddressGu();
         recordedPlace.addressX = recordedPlaceDto.getAddressX();
         recordedPlace.addressY = recordedPlaceDto.getAddressY();
-        recordedPlace.image = recordedPlaceDto.getImage();
         recordedPlace.placeContent = recordedPlaceDto.getPlaceContent();
         return recordedPlace;
     }

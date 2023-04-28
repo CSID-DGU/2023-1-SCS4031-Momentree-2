@@ -17,8 +17,10 @@ public class HashtagEntity {
     @JoinColumn(name = "record_id")
     private RecordEntity record;
 
+    @Column(name = "tag_name")
     private String tagName;
 
+    @Column(name = "hashtag_type")
     @Enumerated(EnumType.STRING)
     private HashtagType hashtagType;
 

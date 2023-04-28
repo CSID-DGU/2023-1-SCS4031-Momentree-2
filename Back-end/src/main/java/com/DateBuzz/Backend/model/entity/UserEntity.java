@@ -1,8 +1,11 @@
 package com.DateBuzz.Backend.model.entity;
 
+import com.DateBuzz.Backend.controller.requestDto.UserJoinRequestDto;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -15,23 +18,28 @@ import java.time.Instant;
 @SQLDelete(sql = "update \"user\" set deleted_at = now() where id = ?")
 @Where(clause = "deleted_at is null")
 @Getter
+@NoArgsConstructor
 public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column(name = "user_name")
     private String userName;
-
+    @Column(name = "password")
     private String password;
-
+    @Column(name = "profile_img")
     private String profileImg;
+    @Column(name = "nickname")
+    private String nickname;
+    @Column(name = "email")
+    private String email;
 
-    @Nullable
+    @Column(name = "created_at")
     private Timestamp createdAt;
-    @Nullable
+    @Column(name = "updated_at")
     private Timestamp updatedAt;
-    @Nullable
+    @Column(name = "deleted_at")
     private Timestamp deletedAt;
 
     @PrePersist
@@ -43,5 +51,16 @@ public class UserEntity {
         this.updatedAt = Timestamp.from(Instant.now());
     }
 
+    @Builder
+    public UserEntity(String userName, String password, String nickname, String email) {
 
+    }
+    public static UserEntity fromJoinRequestDto(String userName, String password, String nickname, String email){
+        return new UserEntity(
+                userName,
+                password,
+                nickname,
+                email
+        );
+    }
 }
