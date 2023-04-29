@@ -2,13 +2,23 @@ import os
 import re
 import pandas as pd
 import numpy as np
-
+import pprint
+import pymysql
+import javaobj
 
 from tqdm import tqdm
 from tabulate import tabulate
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics.pairwise import cosine_similarity
+
+#유사도를 검사하는 함수
+def cos_sim_matrix(a,b):
+    cos_sin = cosine_similarity(a,b)
+    result_df = pd.DataFrame(data=cos_sin, index=[a.index])
+
+    return result_df
 
 #print를 위한 함수
 def print_dictionary(dic_name):
@@ -25,66 +35,85 @@ def remove_similar_item(list):
         else:
             # 앞서 추가된 요소들과 앞 세 글자가 겹치지 않으면 추가
             for j in range(len(new_list)):
-                if new_list[j][:3] == list[i][:3]:
+                if new_list[j][:1] == list[i][:1]:
                     break
             else:
                 new_list.append(list[i])
     return new_list
 
 
-#--------------------Data경로 > 이후에 database와 연동해야 함--------------------
-path = '/Users/seoyoung/Desktop/DateBuzz/Recommendation/data'
+# #----------------- DB 연동 --------------------
+#conn = DB를 연동하기 위한 DBconnector변수
+#cur = DB의 데이터를 GET/POST/PATCH하기 위해 데이터 위치를 담기위한 변수
+conn = pymysql.connect(host='127.0.0.1', user='root', password='1234', db='pythonDB', charset='utf8')
+cur = conn.cursor()
 
-#--------------------01. Data가져오기--------------------
-#static_tag가 담긴 파일로 csv파일을 읽어옴
-static_tag_df = pd.read_csv(os.path.join(path, 'mood.csv'), encoding='utf-8')
+#--------------------Data 가져오기-------------------
+cur.execute('select * from hastag')
+res = cur.fetchall()
+prototypeData = pd.DataFrame.from_records(res, columns=[desc[0] for desc in cur.description])
+#print(prototypeData)
 
-#--------------------02. Data전처리--------------------
-#mood, activity 두 가지로 열로 나눠져있는 것을 하나의 열로 통합
-static_tag_df['mood_activity'] = static_tag_df.apply(lambda x: ', '.join([x['mood'], x['activity']]), axis=1)
-#하나로 통합한 열을 하나 만들었으므로 기존의 열은 삭제
-static_tag_df = static_tag_df.drop(['mood', 'activity'], axis=1)
-#한글이 아닌 문자들이 들어가있는 경우 전처리
-static_tag_df['mood_activity'] = static_tag_df['mood_activity'].apply(lambda x: re.sub('[^가-힣\s]', '', x))
-#print(static_tag_df)
+#--------------------Data 전처리-------------------
+#1. 필요한 데이터만 남기고 삭제
+course_hastag = prototypeData[['course_id', 'tag_name']]
+course_hastag = course_hastag.groupby('course_id')['tag_name'].apply(lambda x: ' '.join(x)).reset_index()
+
+#2. 한글이 아닌 값이나 중복되는 값 삭제
+course_hastag['tag_name'] = course_hastag['tag_name'].apply(lambda x: re.sub('[^가-힣\s]', '', x))
+#print (tabulate(course_hastag, headers='keys', tablefmt='psql', showindex=False))
+
 
 #----------------03. 게시글에 사용된 태그 목록 생성--------------------
-total_count = len(static_tag_df)
-static_tag_list = []
-for tags in static_tag_df['mood_activity']:
-    static_tag_list += tags.split(' ')
-    static_tag_list = list(set(static_tag_list))
-static_tag_list = remove_similar_item(static_tag_list)
-#print(static_tag_list)
+num_of_course = len(course_hastag)
+hastag_list = []
+for tags in course_hastag['tag_name']:
+    hastag_list += tags.split(' ')
+    hastag_list = list(set(hastag_list))
+    hastag_list = remove_similar_item(hastag_list)
+#print(hastag_list)
 
 #--------------------04. 단어의 가중치 파악--------------------
-tag_count = dict.fromkeys(static_tag_list)
-for each_static_tag in static_tag_df['mood_activity']:
-    for tag in each_static_tag.split(' '):
+hastag_count = dict.fromkeys(hastag_list)
+for each_hastag in course_hastag['tag_name']:
+    for tag in each_hastag.split(' '):
         tag = tag.strip()
-        if tag in tag_count:
-            if tag_count[tag] == None:
-                tag_count[tag] = 1
+        if tag in hastag_count:
+            if hastag_count[tag] == None:
+                hastag_count[tag] = 1
             else:
-                tag_count[tag] = tag_count[tag]+1 
+                hastag_count[tag] = hastag_count[tag]+1 
         else:
             continue
-#print_dictionary(tag_count)
 
-# #빈도수를 바탕으로 단어의 가중치 계산
-for each_static_tag in tag_count:
-    tag_count[each_static_tag] = np.log10(total_count/tag_count[each_static_tag])
-#print_dictionary(tag_count)
+# #--------------------05. 단어의 가중치 계산--------------------
+for each_hastag in hastag_count:
+    hastag_count[each_hastag] = np.log10(num_of_course/hastag_count[each_hastag])
+#print_dictionary(hastag_count)
 
-#태그 가중치를 반영한 태그 representation
-static_tag_representation = pd.DataFrame(columns=sorted(static_tag_list), index=static_tag_df.index)
-#print(static_tag_representation)
-for index, each_row in tqdm(static_tag_df.iterrows()):
+
+# #--------------------05. 가중치를 반영하여 게시글 표현--------------------
+# #태그 가중치를 반영한 태그 representation
+hastag_representation = pd.DataFrame(columns=sorted(hastag_list), index=course_hastag.index)
+#print(hastag_representation)
+for index, each_row in tqdm(course_hastag.iterrows(), disable=True):
     dict_temp = {} 
-    for tag in each_row['mood_activity'].split(' '):
-        if tag in tag_count:
-            dict_temp[tag] = tag_count[tag]
+    #course_hastag에 있는 행들을 순회하면서 공백을 기준으로 모든 태그를 탐색함
+    for tag in each_row['tag_name'].split(' '):
+        #tag리스트에 있는 tag의 목록인지 확인 후 dict_temp에 담아둠
+        if tag in hastag_count:
+            dict_temp[tag] = hastag_count[tag]
     row_to_add = pd.DataFrame(dict_temp, index=[index])
-    static_tag_representation.update(row_to_add)
-print(static_tag_representation)
-#print(tabulate(static_tag_representation, tablefmt='fancy_outline'))
+    hastag_representation.update(row_to_add)
+#print(tabulate(hastag_representation.loc[0].to_frame(), headers='keys', tablefmt='psql', floatfmt=".6f"))
+
+
+# #--------------------06. 해당 표를 기반으로 사용자가 좋아요/북마크 게시글과 유사도 판별--------------------
+hastag_representation = hastag_representation.fillna(0)
+hastag_similarity = cos_sim_matrix(hastag_representation, hastag_representation)
+print(tabulate(hastag_similarity, headers='keys', tablefmt='psql', floatfmt=".6f"))
+
+#print(hastag_similarity[0].sort_values(ascending=False))
+
+
+#--------------------07. 유사도가 높은 것을 기준으로 추천 리스트 생성--------------------
