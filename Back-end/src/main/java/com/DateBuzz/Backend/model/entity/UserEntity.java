@@ -53,7 +53,10 @@ public class UserEntity {
 
     @Builder
     public UserEntity(String userName, String password, String nickname, String email) {
-
+        this.userName = userName;
+        this.password = password;
+        this.nickname = nickname;
+        this.email = email;
     }
     public static UserEntity fromJoinRequestDto(String userName, String password, String nickname, String email){
         return new UserEntity(
