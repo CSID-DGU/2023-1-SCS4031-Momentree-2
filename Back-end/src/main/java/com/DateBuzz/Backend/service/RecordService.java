@@ -4,11 +4,13 @@ import com.DateBuzz.Backend.controller.requestDto.HashtagRequestDto;
 import com.DateBuzz.Backend.controller.requestDto.PlaceImageRequestDto;
 import com.DateBuzz.Backend.controller.requestDto.RecordRequestDto;
 import com.DateBuzz.Backend.controller.requestDto.RecordedPlaceRequestDto;
+import com.DateBuzz.Backend.controller.responseDto.HashtagResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.PlaceImgResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.RecordResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.RecordedPlaceResponseDto;
 import com.DateBuzz.Backend.model.entity.*;
 import com.DateBuzz.Backend.repository.*;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -29,6 +31,8 @@ public class RecordService {
     private final HashtagRepository hashtagRepository;
     private final PlaceImgRepository placeImgRepository;
 
+    private final EntityManager entityManager;
+
 
     public Page<RecordResponseDto> getList(Pageable pageable) {
 
@@ -46,7 +50,26 @@ public class RecordService {
                 RecordedPlaceResponseDto placeResponseDto = RecordedPlaceResponseDto.fromRecordedPlace(place, imgResponseDtos);
                 places.add(placeResponseDto);
             }
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places);
+            String query = "select h from HashtagEntity as h where h.record = :record and h.tagName = :tagName";
+            List<HashtagResponseDto> vibeTags = entityManager.createQuery(query, HashtagEntity.class)
+                    .setParameter("record", record)
+                    .setParameter("tagName", "VIBE")
+                    .getResultList()
+                    .stream().map(HashtagResponseDto::fromHashtag)
+                    .toList();
+            List<HashtagResponseDto> activityTags= entityManager.createQuery(query, HashtagEntity.class)
+                    .setParameter("record", record)
+                    .setParameter("tagName", "ACTIVITY")
+                    .getResultList()
+                    .stream().map(HashtagResponseDto::fromHashtag)
+                    .toList();
+            List<HashtagResponseDto> customTags= entityManager.createQuery(query, HashtagEntity.class)
+                    .setParameter("record", record)
+                    .setParameter("tagName", "CUSTOM")
+                    .getResultList()
+                    .stream().map(HashtagResponseDto::fromHashtag)
+                    .toList();
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags);
             recordedList.add(recordResponseDto);
         }
 
