@@ -7,6 +7,7 @@ import com.DateBuzz.Backend.service.RecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,8 +25,8 @@ public class RecordController {
     }
 
     @PostMapping("/community")
-    private Response<Void> records(@RequestBody RecordRequestDto requestDto) throws Exception {
-        recordService.writes(requestDto);
+    private Response<Void> records(@RequestBody RecordRequestDto requestDto, Authentication authentication) throws Exception {
+        recordService.writes(requestDto, authentication.getName());
         return Response.success();
     }
 }
