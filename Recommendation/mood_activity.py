@@ -2,9 +2,7 @@ import os
 import re
 import pandas as pd
 import numpy as np
-import pprint
 import pymysql
-import javaobj
 
 from tqdm import tqdm
 from tabulate import tabulate
@@ -49,7 +47,8 @@ conn = pymysql.connect(host='127.0.0.1', user='root', password='1234', db='pytho
 cur = conn.cursor()
 
 #--------------------Data 가져오기-------------------
-cur.execute('select * from hastag')
+sql = 'select * from hastag'
+cur.execute(sql)
 res = cur.fetchall()
 prototypeData = pd.DataFrame.from_records(res, columns=[desc[0] for desc in cur.description])
 #print(prototypeData)
@@ -107,13 +106,43 @@ for index, each_row in tqdm(course_hastag.iterrows(), disable=True):
     hastag_representation.update(row_to_add)
 #print(tabulate(hastag_representation.loc[0].to_frame(), headers='keys', tablefmt='psql', floatfmt=".6f"))
 
-
-# #--------------------06. 해당 표를 기반으로 사용자가 좋아요/북마크 게시글과 유사도 판별--------------------
 hastag_representation = hastag_representation.fillna(0)
 hastag_similarity = cos_sim_matrix(hastag_representation, hastag_representation)
-print(tabulate(hastag_similarity, headers='keys', tablefmt='psql', floatfmt=".6f"))
+#print(tabulate(hastag_similarity, headers='keys', tablefmt='psql', floatfmt=".6f"))
 
-#print(hastag_similarity[0].sort_values(ascending=False))
+
+# --------------------06. 해당 표를 기반으로 사용자가 좋아요/북마크 게시글과 유사도 판별--------------------
+# bookmarkd와 like DB에서 record_id 가져오기
+user_id = 3;
+sql = 'select user_id, record_id from bookmark where user_id = %s'
+cur.execute(sql, (user_id))
+bookmark_df = pd.DataFrame(cur.fetchall(), columns=['user_id', 'record_id'])
+#print(tabulate(bookmark_df, headers='keys', tablefmt='psql', showindex=False))
+
+sql = 'select user_id, record_id from likes where user_id = %s'
+cur.execute(sql, (user_id))
+like_df = pd.DataFrame(cur.fetchall(), columns=['user_id', 'record_id'])
+#print(tabulate(like_df, headers='keys', tablefmt='psql', showindex=False))
+
+# 두 데이터프레임을 합치기
+user_df = pd.concat([bookmark_df, like_df])
+user_df.drop_duplicates(inplace=True)
+#print(tabulate(user_df, headers='keys', tablefmt='psql', showindex=False))
 
 
 #--------------------07. 유사도가 높은 것을 기준으로 추천 리스트 생성--------------------
+user_records = list(user_df['record_id'] - 1)
+user_similarities = hastag_similarity.loc[user_records].sort_index()
+for idx in user_similarities.index:  # 각 행에 대해 반복
+    col = idx[0]  # 행의 인덱스 값
+    user_similarities.loc[idx, col] = 0  # 인덱스 값과 같은 열에 해당하는 값을 0으로 설정
+#print(tabulate(user_similarities, headers='keys', tablefmt='psql', floatfmt=".3f"))
+
+recommended = []
+while len(recommended) < 5:
+    top_similarities = user_similarities.stack().nlargest(6)  # 유사도가 가장 높은 6개 항목을 추출 (자기 자신 제외)
+    top_similarities = top_similarities[~top_similarities.index.isin(recommended)]  # 추천 목록에 이미 존재하는 항목 제외
+    recommended.extend(top_similarities.index.get_level_values(1).tolist())  # 추천 목록에 추가
+    user_similarities.loc[top_similarities.index] = 0  # 추천 목록에 있는 게시글과 유사도를 0으로 만들어서 중복 추천 방지
+
+print(recommended)
