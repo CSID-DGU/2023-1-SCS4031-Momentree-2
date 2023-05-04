@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -15,13 +16,13 @@ public class RecordedPlaceRequestDto {
     private RecordEntity record;
     private int orders;
     private String placeName;
-    private String addressOld;
-    private String addressRoad;
+    private String address;
     private String addressGu;
     private String addressX;
     private String addressY;
-    private String image;
     private String placeContent;
+
+    private List<PlaceImageRequestDto> images;
 
 
 }

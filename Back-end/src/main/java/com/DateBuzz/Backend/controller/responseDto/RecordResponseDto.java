@@ -23,8 +23,11 @@ public class RecordResponseDto {
     private int bookMarkCnt;
 
     private List<RecordedPlaceResponseDto> recordedPlaces;
+    private List<HashtagResponseDto> VibeTags;
+    private List<HashtagResponseDto> activityTags;
+    private List<HashtagResponseDto> customTags;
 
-    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces){
+    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags){
         return new RecordResponseDto(
                 record.getId(),
                 record.getUser().getUserName(),
@@ -34,7 +37,10 @@ public class RecordResponseDto {
                 true,
                 134,
                 23,
-                recordedPlaces
+                recordedPlaces,
+                vibeTags,
+                activityTags,
+                customTags
         );
     }
 
