@@ -1,7 +1,6 @@
 package com.DateBuzz.Backend.model.entity;
 
-import com.DateBuzz.Backend.controller.requestDto.UserJoinRequestDto;
-import jakarta.annotation.Nullable;
+
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +14,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "\"users\"")
-@SQLDelete(sql = "update \"user\" set deleted_at = now() where id = ?")
+@SQLDelete(sql = "update \"users\" set deleted_at = now() where id = ?")
 @Where(clause = "deleted_at is null")
 @Getter
 @NoArgsConstructor

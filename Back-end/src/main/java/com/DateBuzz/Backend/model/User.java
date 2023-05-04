@@ -55,21 +55,21 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return this.deletedAt == null;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return this.deletedAt == null;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return this.deletedAt == null;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return this.deletedAt == null;
     }
 }
