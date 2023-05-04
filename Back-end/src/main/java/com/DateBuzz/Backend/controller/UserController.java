@@ -25,7 +25,7 @@ public class UserController {
 
     @PostMapping("/login")
     public Response<UserLoginResponseDto> join(@RequestBody UserLoginRequestDto requestDto){
-        UserLoginResponseDto token = new UserLoginResponseDto(userService.login(requestDto));
-        return Response.success(token);
+        String token = userService.login(requestDto);
+        return Response.success(new UserLoginResponseDto(token));
     }
 }
