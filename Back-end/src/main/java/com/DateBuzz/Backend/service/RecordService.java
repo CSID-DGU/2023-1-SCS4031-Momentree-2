@@ -8,6 +8,8 @@ import com.DateBuzz.Backend.controller.responseDto.HashtagResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.PlaceImgResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.RecordResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.RecordedPlaceResponseDto;
+import com.DateBuzz.Backend.exception.DateBuzzException;
+import com.DateBuzz.Backend.exception.ErrorCode;
 import com.DateBuzz.Backend.model.entity.*;
 import com.DateBuzz.Backend.repository.*;
 import jakarta.persistence.EntityManager;
@@ -15,14 +17,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RecordService {
 
     private final RecordRepository recordRepository;
@@ -78,21 +81,25 @@ public class RecordService {
         return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
     }
 
-    public void writes(RecordRequestDto requestDto, String userName) throws Exception {
+    public void writes(RecordRequestDto requestDto, String userName){
         UserEntity user = userRepository
                 .findByUserName(userName)
-                .orElseThrow(Exception::new);
+                .orElseThrow(() ->new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
+        System.out.println(user.getUserName());
         RecordEntity record = RecordEntity.FromRecordRequestDtoAndUserEntity(requestDto, user);
         recordRepository.saveAndFlush(record);
+        System.out.println(record.getId());
         for(HashtagRequestDto hashtags: requestDto.getHashtags()){
             HashtagEntity hashtag = HashtagEntity.FromRecordRequestDtoAndRecordEntity(hashtags, record);
             hashtagRepository.save(hashtag);
         }
         for(RecordedPlaceRequestDto recordedPlaces: requestDto.getRecordedPlaces()){
             RecordedPlaceEntity recordedPlace = RecordedPlaceEntity.FromRecordedRequestDtoAndRecordEntity(recordedPlaces, record);
-            for(PlaceImageRequestDto imageRequestDto: recordedPlaces.getImages()){
-                PlaceImgEntity placeImg = PlaceImgEntity.FromPlaceImgRequestDto(recordedPlace, imageRequestDto);
-                placeImgRepository.save(placeImg);
+            if(!(recordedPlaces.getImages() == null)){
+                for(PlaceImageRequestDto imageRequestDto: recordedPlaces.getImages()){
+                    PlaceImgEntity placeImg = PlaceImgEntity.FromPlaceImgRequestDto(recordedPlace, imageRequestDto);
+                    placeImgRepository.save(placeImg);
+                }
             }
             recordedPlaceRepository.save(recordedPlace);
         }
