@@ -9,10 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,5 +26,10 @@ public class RecordController {
     private Response<Void> records(@RequestBody RecordRequestDto requestDto, Authentication authentication){
         recordService.writes(requestDto, authentication.getName());
         return Response.success();
+    }
+
+    @GetMapping("/community/{recordId}")
+    private Response<RecordResponseDto> getDetail(@PathVariable Long recordId){
+        return Response.success(recordService.getrecord(recordId));
     }
 }
