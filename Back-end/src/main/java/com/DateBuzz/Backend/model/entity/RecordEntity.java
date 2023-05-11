@@ -29,7 +29,7 @@ public class RecordEntity {
     @Column(name = "recorded_content")
     private String recordedContent;
     @Column(name = "date_date")
-    private LocalDate dateDate;
+    private String dateDate;
     @Enumerated(EnumType.STRING)
     @Column(name = "exposure")
     private Exposure exposure;
