@@ -12,15 +12,18 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class RecordResponseDto {
-    private static final String datePattern = "yyyy-MM-dd HH:mm:ss.SSS";
+    private static final String datePattern = "yyyy-MM-dd";
     private Long recordedId;
     private String UserName;
     private int followerCnt;
     private int followingCnt;
     private String profileImg;
     private String title;
+    private String recordContent;
     @JsonFormat(pattern = datePattern)
     private Timestamp createdAt;
+
+    private String dateDate;
 
     // TODO: 미개발로 인해 default 값 부여, 이후 개발 시 추가 예정
     private boolean bookMarkStatus;
@@ -41,7 +44,9 @@ public class RecordResponseDto {
                 33,
                 record.getUser().getProfileImg(),
                 record.getTitle(),
+                record.getRecordedContent(),
                 record.getCreatedAt(),
+                record.getDateDate(),
                 true,
                 true,
                 134,

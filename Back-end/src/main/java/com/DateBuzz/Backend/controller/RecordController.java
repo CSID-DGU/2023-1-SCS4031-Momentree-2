@@ -18,7 +18,7 @@ public class RecordController {
     private final RecordService recordService;
 
     @GetMapping("/community")
-    private Response<Page<RecordResponseDto>> list(@PageableDefault(size=3) Pageable pageable){
+    private Response<Page<RecordResponseDto>> list( Pageable pageable){
         return Response.success(recordService.getList(pageable));
     }
 
@@ -31,5 +31,10 @@ public class RecordController {
     @GetMapping("/community/{recordId}")
     private Response<RecordResponseDto> getDetail(@PathVariable Long recordId){
         return Response.success(recordService.getrecord(recordId));
+    }
+
+    @DeleteMapping("/community/{recordId}")
+    private Response<Long> delete(@PathVariable Long recordId, Authentication authentication){
+        return Response.success(recordService.deleteArticle(recordId, authentication.getName()));
     }
 }
