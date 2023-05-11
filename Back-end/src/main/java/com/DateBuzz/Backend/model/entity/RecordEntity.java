@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "\"record\"")
-@SQLDelete(sql = "update \"record\" set deleted_at = now() where id = ?")
+@SQLDelete(sql = "update record set deleted_at = now() where id = ?")
 @Where(clause = "deleted_at is null")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
