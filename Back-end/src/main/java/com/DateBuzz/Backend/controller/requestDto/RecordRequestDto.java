@@ -1,5 +1,6 @@
 package com.DateBuzz.Backend.controller.requestDto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import java.util.List;
 public class RecordRequestDto {
     private String userName;
     private String title;
-    private LocalDate dateDate;
+    private String dateDate;
     private String recordedContent;
     private List<HashtagRequestDto> hashtags;
     private List<RecordedPlaceRequestDto> recordedPlaces;
