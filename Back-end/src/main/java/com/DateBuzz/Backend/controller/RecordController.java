@@ -18,7 +18,7 @@ public class RecordController {
     private final RecordService recordService;
 
     @GetMapping("/community")
-    private Response<Page<RecordResponseDto>> list(@PageableDefault(size=3) Pageable pageable){
+    private Response<Page<RecordResponseDto>> list( Pageable pageable){
         return Response.success(recordService.getList(pageable));
     }
 
