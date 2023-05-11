@@ -51,6 +51,7 @@ public class RecordedPlaceEntity {
         recordedPlace.record = record;
         recordedPlace.orders = recordedPlaceDto.getOrders();
         recordedPlace.placeName = recordedPlaceDto.getPlaceName();
+        recordedPlace.address = recordedPlaceDto.getAddress();
         recordedPlace.addressGu = recordedPlaceDto.getAddressGu();
         recordedPlace.addressX = recordedPlaceDto.getAddressX();
         recordedPlace.addressY = recordedPlaceDto.getAddressY();
