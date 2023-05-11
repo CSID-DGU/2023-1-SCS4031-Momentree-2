@@ -137,7 +137,7 @@ public class RecordService {
                 .orElseThrow(() ->new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
         RecordEntity record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 에 해당하는 게시물이 존재하지 않습니다.", recordId)));
-        if(Objects.equals(record.getUser().getId(), user.getId()))
+        if(record.getUser() != user)
             throw new DateBuzzException(ErrorCode.INVALID_USER, String.format("%s는 %d를 삭제할 권한이 없습니다.", userName, recordId));
         recordRepository.delete(record);
         return recordId;
