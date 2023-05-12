@@ -1,6 +1,7 @@
 package com.DateBuzz.Backend.controller.responseDto;
 
 import com.DateBuzz.Backend.model.entity.RecordEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,10 +12,18 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class RecordResponseDto {
+    private static final String datePattern = "yyyy-MM-dd";
     private Long recordedId;
     private String UserName;
+    private int followerCnt;
+    private int followingCnt;
+    private String profileImg;
     private String title;
+    private String recordContent;
+    @JsonFormat(pattern = datePattern)
     private Timestamp createdAt;
+
+    private String dateDate;
 
     // TODO: 미개발로 인해 default 값 부여, 이후 개발 시 추가 예정
     private boolean bookMarkStatus;
@@ -23,18 +32,29 @@ public class RecordResponseDto {
     private int bookMarkCnt;
 
     private List<RecordedPlaceResponseDto> recordedPlaces;
+    private List<HashtagResponseDto> VibeTags;
+    private List<HashtagResponseDto> activityTags;
+    private List<HashtagResponseDto> customTags;
 
-    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces){
+    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags){
         return new RecordResponseDto(
                 record.getId(),
                 record.getUser().getUserName(),
+                119,
+                33,
+                record.getUser().getProfileImg(),
                 record.getTitle(),
+                record.getRecordedContent(),
                 record.getCreatedAt(),
+                record.getDateDate(),
                 true,
                 true,
                 134,
                 23,
-                recordedPlaces
+                recordedPlaces,
+                vibeTags,
+                activityTags,
+                customTags
         );
     }
 

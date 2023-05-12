@@ -12,7 +12,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "\"recorded_place\"")
-@SQLDelete(sql = "update \"recorded_place\" set deleted_at = now() where id = ?")
+@SQLDelete(sql = "update recorded_place set deleted_at = now() where id = ?")
 @Where(clause = "deleted_at is null")
 @Getter
 public class RecordedPlaceEntity {
@@ -51,6 +51,7 @@ public class RecordedPlaceEntity {
         recordedPlace.record = record;
         recordedPlace.orders = recordedPlaceDto.getOrders();
         recordedPlace.placeName = recordedPlaceDto.getPlaceName();
+        recordedPlace.address = recordedPlaceDto.getAddress();
         recordedPlace.addressGu = recordedPlaceDto.getAddressGu();
         recordedPlace.addressX = recordedPlaceDto.getAddressX();
         recordedPlace.addressY = recordedPlaceDto.getAddressY();

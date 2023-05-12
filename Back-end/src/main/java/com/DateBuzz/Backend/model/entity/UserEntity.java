@@ -1,7 +1,6 @@
 package com.DateBuzz.Backend.model.entity;
 
-import com.DateBuzz.Backend.controller.requestDto.UserJoinRequestDto;
-import jakarta.annotation.Nullable;
+
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +14,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "\"users\"")
-@SQLDelete(sql = "update \"user\" set deleted_at = now() where id = ?")
+@SQLDelete(sql = "update users set deleted_at = now() where id = ?")
 @Where(clause = "deleted_at is null")
 @Getter
 @NoArgsConstructor
@@ -53,7 +52,10 @@ public class UserEntity {
 
     @Builder
     public UserEntity(String userName, String password, String nickname, String email) {
-
+        this.userName = userName;
+        this.password = password;
+        this.nickname = nickname;
+        this.email = email;
     }
     public static UserEntity fromJoinRequestDto(String userName, String password, String nickname, String email){
         return new UserEntity(
