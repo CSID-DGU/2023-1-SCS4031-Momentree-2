@@ -28,7 +28,7 @@ def main():
 
     recommended = recommend_items(user_df, hashtag_similarity, user_records, n_recommendations=5)
 
-    print("추천 목록: ", recommended)
+    return recommended
     
 if __name__ == "__main__":
     main()
