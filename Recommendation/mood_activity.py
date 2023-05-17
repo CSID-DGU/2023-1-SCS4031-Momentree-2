@@ -40,16 +40,20 @@ def remove_similar_item(list):
 
 
 # ----------------- DB 연동 --------------------
+# conn = pymysql.connect(host='datebuzz.cuigayul1fx5.ap-northeast-2.rds.amazonaws.com', user='buzz123', password='n58#zwqT3VL^VzN', port = 3306, db='DateBuzz', charset='utf8')
+# cur = conn.cursor()
+
+# ----------------- DB 연동 --------------------
 conn = pymysql.connect(host='127.0.0.1', user='root', password='1234', db='pythonDB', charset='utf8')
 cur = conn.cursor()
 
 # --------------------hastag Data 가져오기-------------------
-sql = 'select * from hastag'
+sql = 'select * from hashtag'
 cur.execute(sql)
 res = cur.fetchall()
 prototypeData = pd.DataFrame.from_records(res, columns=[desc[0] for desc in cur.description])
-# print('----- mariadb에서 hastag data 받아오기 -------')
-# print (tabulate(prototypeData, headers='keys', tablefmt='psql', showindex=False))
+print('----- mariadb에서 hastag data 받아오기 -------')
+print (tabulate(prototypeData, headers='keys', tablefmt='psql', showindex=False))
 
 # --------------------Data 전처리-------------------
 #1. 필요한 데이터만 남기고 다른 열 삭제
