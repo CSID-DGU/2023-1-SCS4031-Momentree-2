@@ -4,14 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
 @AllArgsConstructor
+@Getter
 @NoArgsConstructor
+public class UserLoginRequestDto {
 
-public class HashtagRequestDto {
-
-    private String tagName;
-    private String type;
-    private Long recordId;
-
+    private String userName;
+    private String password;
 }
