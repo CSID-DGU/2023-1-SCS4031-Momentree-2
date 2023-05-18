@@ -19,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -141,5 +139,47 @@ public class RecordService {
             throw new DateBuzzException(ErrorCode.INVALID_USER, String.format("%s는 %d를 삭제할 권한이 없습니다.", userName, recordId));
         recordRepository.delete(record);
         return recordId;
+    }
+
+    public Page<RecordResponseDto> getMyRecord(Pageable pageable, String name) {
+        UserEntity user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
+        List<RecordEntity> records = recordRepository.findAllByUser(user);
+        List<RecordResponseDto> recordedList = new ArrayList<>();
+        for (RecordEntity record : records) {
+            List<RecordedPlaceResponseDto> places = new ArrayList<>();
+            List<RecordedPlaceEntity> recordedPlaces = recordedPlaceRepository.findAllByRecord(record);
+            for(RecordedPlaceEntity place: recordedPlaces){
+                List<PlaceImgEntity> imgEntities = placeImgRepository.findAllByRecordedPlace(place);
+                List<PlaceImgResponseDto> imgResponseDtos = imgEntities
+                        .stream()
+                        .map(PlaceImgResponseDto::fromRecordedPlace)
+                        .toList();
+                RecordedPlaceResponseDto placeResponseDto = RecordedPlaceResponseDto.fromRecordedPlace(place, imgResponseDtos);
+                places.add(placeResponseDto);
+            }
+            List<HashtagResponseDto> vibeTags = hashtagRepository
+                    .findAllByRecordAndHashtagType(record, HashtagType.VIBE)
+                    .stream()
+                    .map(HashtagResponseDto::fromHashtag)
+                    .toList();
+
+            List<HashtagResponseDto> activityTags= hashtagRepository
+                    .findAllByRecordAndHashtagType(record, HashtagType.ACTIVITY)
+                    .stream()
+                    .map(HashtagResponseDto::fromHashtag)
+                    .toList();
+            List<HashtagResponseDto> customTags= hashtagRepository
+                    .findAllByRecordAndHashtagType(record, HashtagType.CUSTOM)
+                    .stream()
+                    .map(HashtagResponseDto::fromHashtag)
+                    .toList();
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags);
+            recordedList.add(recordResponseDto);
+
+        }
+        int start = (int)pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), recordedList.size());
+        return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
     }
 }
