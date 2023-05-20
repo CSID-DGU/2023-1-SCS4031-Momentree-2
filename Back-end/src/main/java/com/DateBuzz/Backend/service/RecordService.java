@@ -29,7 +29,7 @@ public class RecordService {
     private final HashtagRepository hashtagRepository;
     private final PlaceImgRepository placeImgRepository;
     private final LikeRepository likeRepository;
-
+    private final BookmarkRepository bookmarkRepository;
     private final EntityManager entityManager;
 
     // 로그인 안한 채로 리스트 받기
@@ -65,10 +65,13 @@ public class RecordService {
                     .stream()
                     .map(HashtagResponseDto::fromHashtag)
                     .toList();
-// like Cnt
+            // like Cnt
             int likeCnt = likeRepository.countByRecord(record);
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecordNotLogin(record, places, vibeTags, activityTags, customTags, likeCnt);
+            // bookmark Cnt
+            int bookmarkCnt = bookmarkRepository.countByRecord(record);
+
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecordNotLogin(record, places, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt);
             recordedList.add(recordResponseDto);
         }
         int start = (int)pageable.getOffset();
@@ -111,7 +114,6 @@ public class RecordService {
                     .stream()
                     .map(HashtagResponseDto::fromHashtag)
                     .toList();
-// like Cnt
             // like Cnt
             int likeCnt = likeRepository.countByRecord(record);
 
@@ -119,7 +121,16 @@ public class RecordService {
             int likeStatus = 0;
             Optional<LikeEntity> like = likeRepository.findByUserAndRecord(user, record);
             if(like.isPresent() && like.get().getLikeStatus() == 1) likeStatus++;
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt);
+
+            // bookmark Cnt
+            int bookmarkCnt = bookmarkRepository.countByRecord(record);
+
+            // bookmark Status
+            int bookmarkStatus = 0;
+            Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
+            if(bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
+
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt);
             recordedList.add(recordResponseDto);
         }
 
@@ -170,7 +181,15 @@ public class RecordService {
         int likeStatus = 0;
         if(likeRepository.findByUserAndRecord(user, record).isPresent()) likeStatus++;
 
-        return RecordResponseDto.fromRecord(record, placeResponseDtos, vibeTags, activityTags, customTags, likeStatus, likeCnt);
+        // bookmark Cnt
+        int bookmarkCnt = bookmarkRepository.countByRecord(record);
+
+        // bookmark Status
+        int bookmarkStatus = 0;
+        Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
+        if(bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
+
+        return RecordResponseDto.fromRecord(record, placeResponseDtos, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt);
     }
 
     public Long deleteArticle(Long recordId, String userName) {
@@ -224,7 +243,15 @@ public class RecordService {
             // like Status
             int likeStatus = 0;
             if(likeRepository.findByUserAndRecord(user, record).isPresent()) likeStatus++;
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt);
+            // bookmark Cnt
+            int bookmarkCnt = bookmarkRepository.countByRecord(record);
+
+            // bookmark Status
+            int bookmarkStatus = 0;
+            Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
+            if(bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
+
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt);
             recordedList.add(recordResponseDto);
 
         }
@@ -265,9 +292,10 @@ public class RecordService {
 
         // like Cnt
         int likeCnt = likeRepository.countByRecord(record);
+        // bookmark Cnt
+        int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
-
-        return RecordResponseDto.fromRecordNotLogin(record, placeResponseDtos, vibeTags, activityTags, customTags, likeCnt);
+        return RecordResponseDto.fromRecordNotLogin(record, placeResponseDtos, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt);
 
     }
 

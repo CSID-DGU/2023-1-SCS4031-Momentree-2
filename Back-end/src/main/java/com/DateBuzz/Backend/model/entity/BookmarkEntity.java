@@ -1,12 +1,17 @@
 package com.DateBuzz.Backend.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 
 @Table(name = "\"bookmark\"")
 @Entity
+@Getter
+@NoArgsConstructor
 public class BookmarkEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,5 +41,24 @@ public class BookmarkEntity {
     @PreUpdate
     void updatedAt(){
         this.updatedAt = Timestamp.from(Instant.now());
+    }
+
+    @Builder
+    public BookmarkEntity(UserEntity user, RecordEntity record) {
+        this.user = user;
+        this.record = record;
+        this.bookmarkStatus = 1;
+    }
+
+    public static BookmarkEntity bookmarkRecord(UserEntity user, RecordEntity record){
+        return new BookmarkEntity(user, record);
+    }
+
+    public static void updateBookmarkStatus(BookmarkEntity bookmark){
+        if(bookmark.bookmarkStatus == 1){
+            bookmark.bookmarkStatus = 0;
+            return;
+        }
+        if(bookmark.bookmarkStatus == 0) bookmark.bookmarkStatus = 1;
     }
 }
