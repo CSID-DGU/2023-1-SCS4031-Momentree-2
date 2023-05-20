@@ -1,9 +1,12 @@
 import pandas as pd
 from tabulate import tabulate
+import sys
 
 from db_connector import connect_to_db, fetch_all_data_from_table, fetch_data_for_user
 from data_preprocessing import preprocess_data
 from hashtag_analysis import create_hashtag_list, calculate_hashtag_weight, create_hashtag_representation, create_hashtag_similarity, get_user_dataframes, recommend_items
+
+# def main(user_id):
 
 def main():
     cur = connect_to_db()
@@ -23,7 +26,6 @@ def main():
 
 
     user_df = get_user_dataframes(bookmark_df, like_df)
-    print("user_Df: ", user_df)
     user_records = list(user_df['record_id'] - 1)
 
     recommended = recommend_items(user_df, hashtag_similarity, user_records, n_recommendations=5)
@@ -31,4 +33,7 @@ def main():
     return recommended
     
 if __name__ == "__main__":
-    main()
+    # user_id = sys.argv[1]
+    # main(user_id)
+    recommended = main()
+    print(recommended)
