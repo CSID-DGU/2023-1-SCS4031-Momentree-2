@@ -38,7 +38,7 @@ public class RecordResponseDto {
     private List<HashtagResponseDto> customTags;
 
     @Builder
-    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags, int likeStatus, int likeCnt){
+    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags, int likeStatus, int likeCnt, int bookMarkStatus, int bookMarkCnt){
         return new RecordResponseDto(
                 record.getId(),
                 record.getUser().getUserName(),
@@ -49,10 +49,10 @@ public class RecordResponseDto {
                 record.getRecordedContent(),
                 record.getCreatedAt(),
                 record.getDateDate(),
-                1,
+                bookMarkStatus,
                 likeStatus,
                 likeCnt,
-                23,
+                bookMarkCnt,
                 recordedPlaces,
                 vibeTags,
                 activityTags,
@@ -61,7 +61,7 @@ public class RecordResponseDto {
     }
 
     @Builder
-    public static RecordResponseDto fromRecordNotLogin(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags, int likeCnt){
+    public static RecordResponseDto fromRecordNotLogin(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags, int likeCnt, int bookMarkCnt){
         return new RecordResponseDto(
                 record.getId(),
                 record.getUser().getUserName(),
@@ -72,10 +72,10 @@ public class RecordResponseDto {
                 record.getRecordedContent(),
                 record.getCreatedAt(),
                 record.getDateDate(),
-                1,
+                0,
                 0,
                 likeCnt,
-                23,
+                bookMarkCnt,
                 recordedPlaces,
                 vibeTags,
                 activityTags,
