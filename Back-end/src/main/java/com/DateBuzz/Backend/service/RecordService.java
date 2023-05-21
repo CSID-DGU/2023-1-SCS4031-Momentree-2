@@ -179,7 +179,8 @@ public class RecordService {
 
         // like Status
         int likeStatus = 0;
-        if(likeRepository.findByUserAndRecord(user, record).isPresent()) likeStatus++;
+        Optional<LikeEntity> like = likeRepository.findByUserAndRecord(user, record);
+        if(like.isPresent() && like.get().getLikeStatus() == 1) likeStatus++;
 
         // bookmark Cnt
         int bookmarkCnt = bookmarkRepository.countByRecord(record);
