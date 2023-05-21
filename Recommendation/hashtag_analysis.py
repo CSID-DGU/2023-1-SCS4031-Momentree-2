@@ -34,14 +34,19 @@ def calculate_hashtag_weight(hashtag_df, hashtag_list):
 
 
 def create_hashtag_representation(hashtag_df, hashtag_list, hashtag_weighting):
-    hashtag_representation = pd.DataFrame(columns=(hashtag_list), index=hashtag_df.index)
+    # Set the 'record_id' column as the index of hashtag_df
+    hashtag_df.set_index('record_id', inplace=True)
 
-    for index, each_row in tqdm(hashtag_df.iterrows(), disable=True):
+    # Now the index of hashtag_representation is the same as 'record_id'
+    hashtag_representation = pd.DataFrame(columns=hashtag_list, index=hashtag_df.index)
+
+    for record_id, each_row in tqdm(hashtag_df.iterrows(), disable=True):
         dict_temp = {} 
         for tag in each_row['tag_name'].split(' '):
             if tag in hashtag_weighting:
                 dict_temp[tag] = hashtag_weighting[tag]
-        row_to_add = pd.DataFrame(dict_temp, index=[index])
+        # Use 'record_id' instead of 'index' when creating 'row_to_add'
+        row_to_add = pd.DataFrame(dict_temp, index=[record_id])
         hashtag_representation.update(row_to_add)
 
     hashtag_representation = hashtag_representation.fillna(0)
@@ -49,6 +54,7 @@ def create_hashtag_representation(hashtag_df, hashtag_list, hashtag_weighting):
 
 def create_hashtag_similarity(hashtag_representation):
     hashtag_similarity = cos_sim_matrix(hashtag_representation, hashtag_representation)
+    hashtag_similarity.columns = hashtag_representation.index  # Set the columns to be the same as the index
     return hashtag_similarity
 
 def get_user_dataframes(bookmark_df, like_df):
@@ -56,7 +62,7 @@ def get_user_dataframes(bookmark_df, like_df):
     user_df.drop_duplicates(inplace=True)
     return user_df
 
-def recommend_items(user_df, hashtag_similarity, user_records, n_recommendations=5):
+def recommend_items(hashtag_similarity, user_records, n_recommendations=5):
     recommended = []
     user_similarities = hashtag_similarity.loc[user_records].sort_index()
     for idx in user_similarities.index:
@@ -67,6 +73,7 @@ def recommend_items(user_df, hashtag_similarity, user_records, n_recommendations
 
     while len(recommended) < n_recommendations:
         top_similarities = user_similarities.nlargest(1)
+        print(top_similarities)
         index1 = top_similarities.index[0][0]
         index2 = top_similarities.index[0][1]
         if index2 not in recommended and index2 not in user_records:

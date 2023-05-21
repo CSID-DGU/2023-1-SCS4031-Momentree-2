@@ -24,16 +24,16 @@ def main():
     bookmark_df = fetch_data_for_user(cur, 'bookmark', user_id)
     like_df = fetch_data_for_user(cur, 'likes', user_id)
 
-
     user_df = get_user_dataframes(bookmark_df, like_df)
-    user_records = list(user_df['record_id'] - 1)
+    user_records = list(user_df['record_id'])
 
-    recommended = recommend_items(user_df, hashtag_similarity, user_records, n_recommendations=5)
-
+    recommended = recommend_items(hashtag_similarity, user_records, n_recommendations=5)
+    
     return recommended
     
 if __name__ == "__main__":
     # user_id = sys.argv[1]
     # main(user_id)
     recommended = main()
+    print('user3의 추천 항목은: ')
     print(recommended)

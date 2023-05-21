@@ -12,7 +12,11 @@ spring:
       hibernate:
         #        show_sql: true
         format_sql: true
-
+jwt:
+  secret-key: ${TOKEN_SECRET_KEY}
+  #    //30days
+  token:
+    expired-time-ms: ${TOKEN_EXPIRE_TIME}
 #  datasource:
 #    url: jdbc:h2:tcp://localhost/~/dateBuzz;AUTO_SERVER=TRUE
 #    username: sa
