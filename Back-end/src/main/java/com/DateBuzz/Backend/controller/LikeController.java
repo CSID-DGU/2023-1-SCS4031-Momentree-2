@@ -1,5 +1,6 @@
 package com.DateBuzz.Backend.controller;
 
+import com.DateBuzz.Backend.controller.responseDto.LikeResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.Response;
 import com.DateBuzz.Backend.service.LikeService;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,7 @@ public class LikeController {
 
     private final LikeService likeService;
     @PostMapping("community/{recordId}/likes")
-    public Response<Void> likeRecord(@PathVariable Long recordId, Authentication authentication){
-        likeService.like(recordId, authentication.getName());
-        return Response.success();
+    public Response<LikeResponseDto> likeRecord(@PathVariable Long recordId, Authentication authentication){
+        return Response.success(likeService.like(recordId, authentication.getName()));
     }
 }
