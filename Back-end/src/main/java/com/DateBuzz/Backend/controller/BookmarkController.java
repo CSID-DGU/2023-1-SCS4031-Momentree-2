@@ -1,5 +1,6 @@
 package com.DateBuzz.Backend.controller;
 
+import com.DateBuzz.Backend.controller.responseDto.BookmarkResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.Response;
 import com.DateBuzz.Backend.service.BookmarkService;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,7 @@ public class BookmarkController {
 
     private final BookmarkService bookmarkService;
     @PostMapping("community/{recordId}/bookmark")
-    public Response<Void> bookmarkRecord(@PathVariable Long recordId, Authentication authentication){
-        bookmarkService.bookmark(recordId, authentication.getName());
-        return Response.success();
+    public Response<BookmarkResponseDto> bookmarkRecord(@PathVariable Long recordId, Authentication authentication){
+        return Response.success(bookmarkService.bookmark(recordId, authentication.getName()));
     }
 }
