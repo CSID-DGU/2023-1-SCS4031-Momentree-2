@@ -1,5 +1,6 @@
 package com.DateBuzz.Backend.service;
 
+import com.DateBuzz.Backend.controller.responseDto.BookmarkResponseDto;
 import com.DateBuzz.Backend.exception.DateBuzzException;
 import com.DateBuzz.Backend.exception.ErrorCode;
 import com.DateBuzz.Backend.model.entity.BookmarkEntity;
@@ -25,7 +26,7 @@ public class BookmarkService {
     private final BookmarkRepository bookmarkRepository;
 
 
-    public void bookmark(Long recordId, String name) {
+    public BookmarkResponseDto bookmark(Long recordId, String name) {
         UserEntity user = userRepository.findByUserName(name)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
         RecordEntity record = recordRepository
@@ -34,5 +35,15 @@ public class BookmarkService {
         Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
         bookmark.ifPresent(BookmarkEntity::updateBookmarkStatus);
         if (bookmark.isEmpty())bookmarkRepository.save(BookmarkEntity.bookmarkRecord(user, record));
+
+        int bookmarkCnt = bookmarkRepository.countByRecord(record);
+
+        int bookmarkStatus = bookmarkRepository.findByUserAndRecord(user, record).get().getBookmarkStatus();
+        bookmarkRepository.flush();
+
+        return BookmarkResponseDto.builder()
+                .bookmarkCnt(bookmarkCnt)
+                .bookmarkStatus(bookmarkStatus)
+                .build();
     }
 }
