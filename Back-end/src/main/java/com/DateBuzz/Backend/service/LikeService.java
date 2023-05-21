@@ -1,5 +1,6 @@
 package com.DateBuzz.Backend.service;
 
+import com.DateBuzz.Backend.controller.responseDto.LikeResponseDto;
 import com.DateBuzz.Backend.exception.DateBuzzException;
 import com.DateBuzz.Backend.exception.ErrorCode;
 import com.DateBuzz.Backend.model.entity.LikeEntity;
@@ -25,7 +26,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
 
 
-    public void like(Long recordId, String name) {
+    public LikeResponseDto like(Long recordId, String name) {
         UserEntity user = userRepository.findByUserName(name)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
         RecordEntity record = recordRepository
@@ -34,5 +35,16 @@ public class LikeService {
         Optional<LikeEntity> like = likeRepository.findByUserAndRecord(user, record);
         like.ifPresent(LikeEntity::updateLikeStatus);
         if (like.isEmpty())likeRepository.save(LikeEntity.likeRecord(user, record));
+
+        // like Cnt
+        int likeCnt = likeRepository.countByRecord(record);
+
+        // like Status
+        int likeStatus = likeRepository.findByUserAndRecord(user, record).get().getLikeStatus();
+        likeRepository.flush();
+
+        return LikeResponseDto.builder()
+                .likeCnt(likeCnt)
+                .likeStatus(likeStatus).build();
     }
 }
