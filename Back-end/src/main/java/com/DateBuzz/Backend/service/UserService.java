@@ -2,12 +2,13 @@ package com.DateBuzz.Backend.service;
 
 import com.DateBuzz.Backend.controller.requestDto.UserJoinRequestDto;
 import com.DateBuzz.Backend.controller.requestDto.UserLoginRequestDto;
+import com.DateBuzz.Backend.controller.responseDto.UserInfoResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.UserJoinResponseDto;
-import com.DateBuzz.Backend.controller.responseDto.UserLoginResponseDto;
 import com.DateBuzz.Backend.exception.DateBuzzException;
 import com.DateBuzz.Backend.exception.ErrorCode;
 import com.DateBuzz.Backend.model.User;
 import com.DateBuzz.Backend.model.entity.UserEntity;
+import com.DateBuzz.Backend.repository.RecordRepository;
 import com.DateBuzz.Backend.repository.UserRepository;
 import com.DateBuzz.Backend.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder encoder; // encoder 추가
+    private final RecordRepository recordRepository;
 
     public User loadUserByUserName(String userName){
         return userRepository.findByUserName(userName).map(User::fromEntity)
@@ -67,5 +69,14 @@ public class UserService {
 
         // 토큰 생성 과정
         return JwtTokenUtils.generateToken(user.getUserName(), user.getNickname(), secretKey, expiredTimeMs);
+    }
+
+    public UserInfoResponseDto getInfo(String userName) {
+        UserEntity user = userRepository
+                .findByUserName(userName)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s is not founded", userName)));
+        int recordCnt = recordRepository.myRecordCnt(user);
+        return UserInfoResponseDto.getUserInfo(user, 100, 100, recordCnt);
+
     }
 }
