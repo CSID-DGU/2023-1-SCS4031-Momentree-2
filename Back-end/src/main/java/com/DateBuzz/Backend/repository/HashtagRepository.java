@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface HashtagRepository extends JpaRepository<HashtagEntity, Long> {
     List<HashtagEntity> findAllByRecordAndHashtagType(RecordEntity record, HashtagType hashtagType);
+    List<HashtagEntity> findAllByTagName(String hashtagName);
 }

@@ -3,9 +3,16 @@ package com.DateBuzz.Backend.model.entity;
 import com.DateBuzz.Backend.controller.requestDto.HashtagRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
+import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Table(name = "\"Hashtag\"")
+@SQLDelete(sql = "update recorded_place set deleted_at = now() where id = ?")
+@Where(clause = "deleted_at is null")
 @Getter
 public class HashtagEntity {
 
@@ -23,6 +30,21 @@ public class HashtagEntity {
     @Column(name = "hashtag_type")
     @Enumerated(EnumType.STRING)
     private HashtagType hashtagType;
+    @Column(name = "created_at")
+    private Timestamp createdAt;
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
+    @Column(name = "deleted_at")
+    private Timestamp deletedAt;
+
+    @PrePersist
+    void registeredAt(){
+        this.createdAt = Timestamp.from(Instant.now());
+    }
+    @PreUpdate
+    void updatedAt(){
+        this.updatedAt = Timestamp.from(Instant.now());
+    }
 
     public static HashtagEntity FromRecordRequestDtoAndRecordEntity(HashtagRequestDto requestDto, RecordEntity record){
         HashtagEntity hashtag = new HashtagEntity();
