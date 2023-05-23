@@ -32,11 +32,11 @@ public class PlaceImgEntity {
     }
 
 
-    public static PlaceImgEntity FromPlaceImgRequestDto(RecordedPlaceEntity recordedPlace, PlaceImageRequestDto imageRequestDto) {
+    public static PlaceImgEntity FromPlaceImgRequestDto(RecordedPlaceEntity recordedPlace, PlaceImageRequestDto imageRequestDto, String url) {
         return new PlaceImgEntity(
                 recordedPlace,
                 imageRequestDto.getOrders(),
-                imageRequestDto.getImgUrl()
+                url
         );
     }
 }

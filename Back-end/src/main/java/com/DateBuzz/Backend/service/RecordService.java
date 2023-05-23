@@ -31,6 +31,7 @@ public class RecordService {
     private final LikeRepository likeRepository;
     private final BookmarkRepository bookmarkRepository;
     private final EntityManager entityManager;
+    private final S3Service s3Service;
 
     // 로그인 안한 채로 리스트 받기
     public Page<RecordResponseDto> getList(Pageable pageable) {
@@ -314,7 +315,10 @@ public class RecordService {
             RecordedPlaceEntity recordedPlace = RecordedPlaceEntity.FromRecordedRequestDtoAndRecordEntity(recordedPlaces, record);
             if(!(recordedPlaces.getImages() == null)){
                 for(PlaceImageRequestDto imageRequestDto: recordedPlaces.getImages()){
-                    PlaceImgEntity placeImg = PlaceImgEntity.FromPlaceImgRequestDto(recordedPlace, imageRequestDto);
+                    String imageName = imageRequestDto.getFileName();
+                    String contentType = imageRequestDto.getContentType();
+                    String url = s3Service.uploadFile(imageRequestDto.getImgFormData(), imageName, contentType);
+                    PlaceImgEntity placeImg = PlaceImgEntity.FromPlaceImgRequestDto(recordedPlace, imageRequestDto, url);
                     placeImgRepository.save(placeImg);
                 }
             }
