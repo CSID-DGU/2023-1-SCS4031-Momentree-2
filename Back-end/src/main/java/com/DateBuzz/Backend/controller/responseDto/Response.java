@@ -2,6 +2,9 @@ package com.DateBuzz.Backend.controller.responseDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+import java.net.http.HttpHeaders;
 
 @Getter
 @AllArgsConstructor
@@ -9,15 +12,6 @@ public class Response<T> {
 
     private String resultCode;
     private T result;
-
-    /**
-     * @param errorCode
-     * @return Response(errorCode, null)
-     * 에러 발생 시 에러 코드를 반환하는 메서드
-     */
-    public static Response<Void> error(String errorCode){
-        return new Response<>(errorCode, null);
-    }
 
     /**
      *
