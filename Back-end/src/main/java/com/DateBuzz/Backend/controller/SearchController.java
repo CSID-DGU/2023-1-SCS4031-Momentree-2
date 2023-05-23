@@ -6,6 +6,7 @@ import com.DateBuzz.Backend.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,7 +19,7 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping("/search")
-    public Response<Page<RecordResponseDto>> findByHashtag(@RequestParam String hashtagName,@PageableDefault(size = 5) Pageable pageable){
+    public Response<Page<RecordResponseDto>> findByHashtag(@RequestParam String hashtagName,@PageableDefault(size = 5, sort = "recordedID", direction = Sort.Direction.ASC) Pageable pageable){
         return Response.success(searchService.findByTag(hashtagName, pageable));
     }
 }

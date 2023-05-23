@@ -7,6 +7,7 @@ import com.DateBuzz.Backend.service.RecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +20,12 @@ public class RecordController {
     private final RecordService recordService;
 
     @GetMapping("")
-    private Response<Page<RecordResponseDto>> list(@PageableDefault(size = 5) Pageable pageable){
+    private Response<Page<RecordResponseDto>> list(@PageableDefault(size = 5, sort = "recordedID", direction = Sort.Direction.ASC) Pageable pageable){
         return Response.success(recordService.getList(pageable));
     }
 
     @GetMapping("/login")
-    private Response<Page<RecordResponseDto>> listLogin(@PageableDefault(size = 5) Pageable pageable, Authentication authentication){
+    private Response<Page<RecordResponseDto>> listLogin(@PageableDefault(size = 5, sort = "recordedID", direction = Sort.Direction.ASC) Pageable pageable, Authentication authentication){
         return Response.success(recordService.getListLogin(pageable, authentication.getName()));
     }
 
