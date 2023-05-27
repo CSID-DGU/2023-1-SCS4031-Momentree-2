@@ -7,10 +7,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RecordRepository extends JpaRepository<RecordEntity, Long> {
     List<RecordEntity> findAllByUser(UserEntity user);
     @Query(value = "select count(*) from RecordEntity record where record.user = :user")
     Integer myRecordCnt(UserEntity user);
+
+    Optional<RecordEntity> findByUserAndId(UserEntity user, Long id);
 }
