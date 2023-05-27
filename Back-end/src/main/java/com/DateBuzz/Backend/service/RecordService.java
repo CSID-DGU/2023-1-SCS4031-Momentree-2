@@ -326,6 +326,68 @@ public class RecordService {
         }
     }
 
+    public Page<RecordResponseDto> getMyBookmarkRecord(Pageable pageable, String name) {
+        UserEntity user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
+        List<RecordEntity> records = bookmarkRepository
+                .findAllByUser(user)
+                .stream()
+                .map(BookmarkEntity::getRecord)
+                .toList();
+        List<RecordResponseDto> recordedList = new ArrayList<>();
+        for (RecordEntity record : records) {
+            List<RecordedPlaceResponseDto> places = new ArrayList<>();
+            List<RecordedPlaceEntity> recordedPlaces = recordedPlaceRepository.findAllByRecord(record);
+            for(RecordedPlaceEntity place: recordedPlaces){
+                List<PlaceImgEntity> imgEntities = placeImgRepository.findAllByRecordedPlace(place);
+                List<PlaceImgResponseDto> imgResponseDtos = imgEntities
+                        .stream()
+                        .map(PlaceImgResponseDto::fromRecordedPlace)
+                        .toList();
+                RecordedPlaceResponseDto placeResponseDto = RecordedPlaceResponseDto.fromRecordedPlace(place, imgResponseDtos);
+                places.add(placeResponseDto);
+            }
+            List<HashtagResponseDto> vibeTags = hashtagRepository
+                    .findAllByRecordAndHashtagType(record, HashtagType.VIBE)
+                    .stream()
+                    .map(HashtagResponseDto::fromHashtag)
+                    .toList();
+
+            List<HashtagResponseDto> activityTags= hashtagRepository
+                    .findAllByRecordAndHashtagType(record, HashtagType.ACTIVITY)
+                    .stream()
+                    .map(HashtagResponseDto::fromHashtag)
+                    .toList();
+            List<HashtagResponseDto> customTags= hashtagRepository
+                    .findAllByRecordAndHashtagType(record, HashtagType.CUSTOM)
+                    .stream()
+                    .map(HashtagResponseDto::fromHashtag)
+                    .toList();
+
+            // like Cnt
+            int likeCnt = likeRepository.countByRecord(record);
+
+            // like Status
+            int likeStatus = 0;
+            if(likeRepository.findByUserAndRecord(user, record).isPresent()) likeStatus++;
+            // bookmark Cnt
+            int bookmarkCnt = bookmarkRepository.countByRecord(record);
+
+            // bookmark Status
+            int bookmarkStatus = 0;
+            Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
+            if(bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
+
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt);
+            recordedList.add(recordResponseDto);
+
+        }
+        int start = (int)pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), recordedList.size());
+        return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
+    }
+
+
 //    public void modifyRecord(Long recordId, ModifyRecordRequestDto requestDto, String userName) {
 //        UserEntity user = userRepository
 //                .findByUserName(userName)
