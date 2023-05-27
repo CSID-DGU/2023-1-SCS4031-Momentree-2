@@ -1,6 +1,7 @@
 package com.DateBuzz.Backend.service;
 
 import com.DateBuzz.Backend.controller.requestDto.*;
+import com.DateBuzz.Backend.controller.requestDto.modify.ModifyRecordRequestDto;
 import com.DateBuzz.Backend.controller.responseDto.*;
 import com.DateBuzz.Backend.exception.DateBuzzException;
 import com.DateBuzz.Backend.exception.ErrorCode;
@@ -388,35 +389,11 @@ public class RecordService {
     }
 
 
-//    public void modifyRecord(Long recordId, ModifyRecordRequestDto requestDto, String userName) {
-//        UserEntity user = userRepository
-//                .findByUserName(userName)
-//                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
-//
-//        RecordEntity record = recordRepository
-//                .findByUserAndId(user, recordId)
-//                .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s가 작성한 %d 기록이 없습니다.", userName, recordId)));
-//
-//        record.modifyRecord(requestDto);
-//
-//        List<HashtagEntity> hashtags = hashtagRepository.findAllByRecord(record);
-//        List<String> hashtagNames = hashtags.stream().map(HashtagEntity::getTagName).toList();
-//        List<String> changedNames = requestDto.getHashtags().stream().map(HashtagRequestDto::getTagName).toList();
-//        for(int i = 0; i < hashtagNames.size(); i++){
-//            if(!changedNames.contains(hashtagNames.get(i))) hashtagRepository.delete(hashtags.get(i));
-//        }
-//        for(int i = 0; i < changedNames.size(); i++){
-//            if(!hashtagNames.contains(changedNames.get(i))) hashtagRepository.save(HashtagEntity.FromRecordRequestDtoAndRecordEntity(requestDto.getHashtags().get(i), record));
-//        }
-//
-//        List<RecordedPlaceEntity> recordedPlaces = recordedPlaceRepository.findAllByRecord(record);
-//        List<RecordedPlaceRequestDto> recordedPlaceDtos  = requestDto.getRecordedPlaces();
-//        recordedPlaces.sort(Comparator.comparingLong(RecordedPlaceEntity::getId));
-//        recordedPlaceDtos.sort(Comparator.comparingLong(recordedPlaceDtos.));
-//
-//        List<PlaceImgEntity> images = placeImgRepository.findAllByRecordedPlace(recordedPlaces);
-//
-//
-//
-//    }
+    public void modifyRecord(Long recordId, ModifyRecordRequestDto requestDto, String name) {
+        UserEntity user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
+        RecordEntity record = recordRepository.findByUserAndId(user, recordId)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 가 작성한 %d 게시물이 존재하지 않습니다.", name, recordId)));
+        record.fixRecord(requestDto);
+    }
 }

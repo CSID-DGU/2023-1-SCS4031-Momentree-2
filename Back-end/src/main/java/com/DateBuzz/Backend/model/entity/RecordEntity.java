@@ -1,6 +1,7 @@
 package com.DateBuzz.Backend.model.entity;
 
 import com.DateBuzz.Backend.controller.requestDto.RecordRequestDto;
+import com.DateBuzz.Backend.controller.requestDto.modify.ModifyRecordRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -59,5 +60,11 @@ public class RecordEntity {
         record.dateDate = requestDto.getDateDate();
         record.exposure = Exposure.returnExposure(requestDto.getExposure());
         return record;
+    }
+
+    public void fixRecord(ModifyRecordRequestDto requestDto) {
+        this.title = requestDto.getTitle();
+        this.recordedContent = requestDto.getRecordedContent();
+        this.dateDate = requestDto.getDateDate();
     }
 }
