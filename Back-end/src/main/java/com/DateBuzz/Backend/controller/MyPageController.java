@@ -23,4 +23,10 @@ public class MyPageController {
         Page<RecordResponseDto> myRecord = recordService.getMyRecord(pageable, authentication.getName());
         return Response.success(myRecord);
     }
+
+    @GetMapping("/myPage/myBookmark")
+    public Response<Page<RecordResponseDto>> getMyBookmarkRecord(@PageableDefault(size = 5, sort = "recordedID", direction = Sort.Direction.ASC) Pageable pageable, Authentication authentication){
+        Page<RecordResponseDto> myRecord = recordService.getMyBookmarkRecord(pageable, authentication.getName());
+        return Response.success(myRecord);
+    }
 }
