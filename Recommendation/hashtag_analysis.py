@@ -73,7 +73,6 @@ def recommend_items(hashtag_similarity, user_records, n_recommendations=5):
 
     while len(recommended) < n_recommendations:
         top_similarities = user_similarities.nlargest(1)
-        print(top_similarities)
         index1 = top_similarities.index[0][0]
         index2 = top_similarities.index[0][1]
         if index2 not in recommended and index2 not in user_records:

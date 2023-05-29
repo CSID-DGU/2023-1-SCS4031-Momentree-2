@@ -16,20 +16,24 @@ def connect_to_db():
     cur = conn.cursor()
     return cur
 
-# def connect_to_db():
-    # conn = pymysql.connect(host='127.0.0.1', user='root', password='1234', db='pythonDB', charset='utf8')
-    # return conn.cursor()
-    # conn = pymysql.connect(host='datebuzz.cuigayul1fx5.ap-northeast-2.rds.amazonaws.com', user='buzz123', password='n58#zwqT3VL^VzN', port = 3306, db='DateBuzz', charset='utf8')
-    # cur = conn.cursor()
-
-def fetch_all_data_from_table(cursor, table_name):
-    sql = f"select * from {table_name}"
+def fetch_all_data_from_table(cursor):
+    sql = """
+    SELECT hashtag.id, hashtag.record_id, hashtag.tag_name, hashtag.hashtag_type
+    FROM hashtag
+    JOIN record ON hashtag.record_id = record.id
+    WHERE record.deleted_at IS NULL
+    """
     cursor.execute(sql)
     res = cursor.fetchall()
     return res
 
 def fetch_data_for_user(cursor, table_name, user_id):
-    sql = f"select user_id, record_id from {table_name} where user_id = %s"
-    cursor.execute(sql, (user_id))
+    sql = f"""
+    SELECT {table_name}.user_id, {table_name}.record_id 
+    FROM {table_name}
+    JOIN record ON {table_name}.record_id = record.id
+    WHERE {table_name}.user_id = %s AND record.deleted_at IS NULL
+    """
+    cursor.execute(sql, (user_id,))
     res = pd.DataFrame(cursor.fetchall(), columns=['user_id', 'record_id'])
     return res

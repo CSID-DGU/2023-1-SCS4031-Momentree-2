@@ -10,9 +10,10 @@ from hashtag_analysis import create_hashtag_list, calculate_hashtag_weight, crea
 
 def main():
     cur = connect_to_db()
-    res = fetch_all_data_from_table(cur, 'hashtag')
+    res = fetch_all_data_from_table(cur)
     prototypeData = pd.DataFrame.from_records(res, columns=[desc[0] for desc in cur.description])
 
+    print(prototypeData)
     hashtag_df = preprocess_data(prototypeData)
 
     hashtag_list = create_hashtag_list(hashtag_df)
@@ -27,6 +28,8 @@ def main():
     user_df = get_user_dataframes(bookmark_df, like_df)
     user_records = list(user_df['record_id'])
 
+    print(user_records);
+
     recommended = recommend_items(hashtag_similarity, user_records, n_recommendations=5)
     
     return recommended
@@ -35,5 +38,4 @@ if __name__ == "__main__":
     # user_id = sys.argv[1]
     # main(user_id)
     recommended = main()
-    print('user3의 추천 항목은: ')
     print(recommended)
