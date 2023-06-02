@@ -1,4 +1,4 @@
-package com.DateBuzz.Backend.controller.Recommend;
+package com.DateBuzz.Backend.controller.recommend;
 
 import com.DateBuzz.Backend.controller.responseDto.RecordResponseDto;
 import com.DateBuzz.Backend.controller.responseDto.Response;
@@ -8,17 +8,11 @@ import com.DateBuzz.Backend.model.entity.UserEntity;
 import com.DateBuzz.Backend.repository.UserRepository;
 import com.DateBuzz.Backend.service.RecommendService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @RequiredArgsConstructor
