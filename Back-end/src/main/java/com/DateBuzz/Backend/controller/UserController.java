@@ -28,11 +28,10 @@ public class UserController {
 
     @PostMapping("/login")
     public Response<UserLoginResponseDto> join(@RequestBody UserLoginRequestDto requestDto){
-        String token = userService.login(requestDto);
-        return Response.success(new UserLoginResponseDto(token));
+        return Response.success(userService.login(requestDto));
     }
 
-    @GetMapping("/UserInfo")
+    @GetMapping("/userInfo")
     public Response<UserInfoResponseDto> getUserInfo(Authentication authentication){
         return Response.success(userService.getInfo(authentication.getName()));
     }
