@@ -14,5 +14,7 @@ public interface BookmarkRepository extends JpaRepository<BookmarkEntity, Long> 
     Optional<BookmarkEntity> findByUserAndRecord(UserEntity user, RecordEntity record);
     @Query(value = "select count(*) from BookmarkEntity entity where entity.record = :record and entity.bookmarkStatus = 1")
     Integer countByRecord(@Param("record") RecordEntity record);
+
+    @Query(value = "select entity from BookmarkEntity entity where entity.user = :user and entity.bookmarkStatus = 1 and entity.record.deletedAt is null")
     List<BookmarkEntity> findAllByUser(UserEntity user);
 }
