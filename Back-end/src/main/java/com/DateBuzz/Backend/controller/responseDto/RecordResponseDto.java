@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -15,7 +14,7 @@ import java.util.List;
 public class RecordResponseDto {
     private static final String datePattern = "yyyy-MM-dd";
     private Long recordedId;
-    private String UserName;
+    private String nickname;
     private int followerCnt;
     private int followingCnt;
     private String profileImg;
@@ -31,6 +30,7 @@ public class RecordResponseDto {
     private int likeStatus;
     private int likeCnt;
     private int bookMarkCnt;
+    private int recordCnt;
 
     private List<RecordedPlaceResponseDto> recordedPlaces;
     private List<HashtagResponseDto> VibeTags;
@@ -38,12 +38,12 @@ public class RecordResponseDto {
     private List<HashtagResponseDto> customTags;
 
     @Builder
-    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags, int likeStatus, int likeCnt, int bookMarkStatus, int bookMarkCnt){
+    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags, int likeStatus, int likeCnt, int bookMarkStatus, int bookMarkCnt, int followingCnt, int followerCnt, int recordCnt){
         return new RecordResponseDto(
                 record.getId(),
-                record.getUser().getUserName(),
-                119,
-                33,
+                record.getUser().getNickname(),
+                followerCnt,
+                followingCnt,
                 record.getUser().getProfileImg(),
                 record.getTitle(),
                 record.getRecordedContent(),
@@ -53,6 +53,7 @@ public class RecordResponseDto {
                 likeStatus,
                 likeCnt,
                 bookMarkCnt,
+                recordCnt,
                 recordedPlaces,
                 vibeTags,
                 activityTags,
@@ -61,12 +62,12 @@ public class RecordResponseDto {
     }
 
     @Builder
-    public static RecordResponseDto fromRecordNotLogin(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags, int likeCnt, int bookMarkCnt){
+    public static RecordResponseDto fromRecordNotLogin(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags, int likeCnt, int bookMarkCnt, int followingCnt, int followerCnt, int recordCnt){
         return new RecordResponseDto(
                 record.getId(),
-                record.getUser().getUserName(),
-                119,
-                33,
+                record.getUser().getNickname(),
+                followerCnt,
+                followingCnt,
                 record.getUser().getProfileImg(),
                 record.getTitle(),
                 record.getRecordedContent(),
@@ -76,6 +77,7 @@ public class RecordResponseDto {
                 0,
                 likeCnt,
                 bookMarkCnt,
+                recordCnt,
                 recordedPlaces,
                 vibeTags,
                 activityTags,
