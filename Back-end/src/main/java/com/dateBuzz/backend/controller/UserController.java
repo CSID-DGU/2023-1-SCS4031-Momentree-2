@@ -3,6 +3,7 @@ package com.dateBuzz.backend.controller;
 import com.dateBuzz.backend.controller.requestDto.UserJoinRequestDto;
 import com.dateBuzz.backend.controller.requestDto.UserLoginRequestDto;
 import com.dateBuzz.backend.controller.requestDto.modify.ModifyPasswordRequestDto;
+import com.dateBuzz.backend.controller.requestDto.modify.ModifyUserInfoRequestDto;
 import com.dateBuzz.backend.controller.responseDto.Response;
 import com.dateBuzz.backend.controller.responseDto.UserInfoResponseDto;
 import com.dateBuzz.backend.controller.responseDto.UserJoinResponseDto;
@@ -37,5 +38,10 @@ public class UserController {
     @PatchMapping("/modifyPassword")
     public Response<Void> modifyPassword(@RequestBody ModifyPasswordRequestDto passwordDto, Authentication authentication){
         return Response.success(userService.ModifyPassword(authentication.getName(), passwordDto));
+    }
+
+    @PatchMapping("/modifyUserInfo")
+    public Response<Void> modifyUserInfo(@RequestBody ModifyUserInfoRequestDto requestDto, Authentication authentication){
+        return Response.success(userService.modifyUserInfo(authentication.getName(), requestDto));
     }
 }
