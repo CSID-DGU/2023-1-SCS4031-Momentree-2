@@ -1,28 +1,45 @@
-    package com.dateBuzz.backend.util;
+package com.dateBuzz.backend.util;
 
-    import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-    import java.io.IOException;
+@Component
+@RequiredArgsConstructor
+public class TelegramNotifier extends TelegramLongPollingBot {
 
-    @Component
-    public class TelegramNotifier {
+    @Value("${bot.token}")
+    private final String BOT_TOKEN;
+    @Value("${bot.username}")
+    private final String BOT_USERNAME;
+    @Value("${bot.chat-id}")
+    private final String CHAT_ID;
 
-        public void sendErrorMessage(String errorMessage) {
-            try {
-                String currentPath = System.getProperty("user.dir");
-                String scriptPath = currentPath + "/python/main.py";
-                String command = "python3 " + scriptPath + " '" + errorMessage + "'";
+    @Override
+    public void onUpdateReceived(Update update) {
+        // 메시지를 받았을 때의 처리 로직을 구현합니다.
+    }
 
-                Process process = Runtime.getRuntime().exec(command);
-
-                int exitCode = process.waitFor();
-                if (exitCode == 0) {
-                    System.out.println("Python script executed successfully.");
-                } else {
-                    System.out.println("Error executing Python script. Exit code: " + exitCode);
-                }
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-            }
+    public void sendErrorMessage(String errorMessage) {
+        SendMessage message = new SendMessage(CHAT_ID, errorMessage);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
     }
+
+    @Override
+    public String getBotUsername() {
+        return BOT_USERNAME;
+    }
+
+    @Override
+    public String getBotToken() {
+        return BOT_TOKEN;
+    }
+}
