@@ -3,6 +3,7 @@ package com.dateBuzz.backend.service;
 import com.dateBuzz.backend.controller.requestDto.UserJoinRequestDto;
 import com.dateBuzz.backend.controller.requestDto.UserLoginRequestDto;
 import com.dateBuzz.backend.controller.requestDto.modify.ModifyPasswordRequestDto;
+import com.dateBuzz.backend.controller.requestDto.modify.ModifyUserInfoRequestDto;
 import com.dateBuzz.backend.controller.responseDto.UserInfoResponseDto;
 import com.dateBuzz.backend.controller.responseDto.UserJoinResponseDto;
 import com.dateBuzz.backend.controller.responseDto.UserLoginResponseDto;
@@ -35,6 +36,7 @@ public class UserService {
     private final BCryptPasswordEncoder encoder; // encoder 추가
     private final RecordRepository recordRepository;
     private final FollowRepository followRepository;
+    private final S3Service s3Service;
 
 
     public User loadUserByUserName(String userName){
@@ -94,6 +96,15 @@ public class UserService {
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s is not founded", userName)));
         if(!encoder.matches(passwordDto.getOldPassword(), user.getPassword())) throw new DateBuzzException(ErrorCode.INVALID_PASSWORD, "기존 비밀번호가 일치하지 않습니다.");
         user.modifyPassword(encoder.encode(passwordDto.getNewPassword()));
+        return null;
+    }
+
+    public Void modifyUserInfo(String userName, ModifyUserInfoRequestDto requestDto) {
+        UserEntity user = userRepository
+                .findByUserName(userName)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s is not founded", userName)));
+        String imgUrl = s3Service.uploadProfileImage(requestDto.getProfileImg());
+        user.modifyProfile(requestDto, imgUrl);
         return null;
     }
 }
