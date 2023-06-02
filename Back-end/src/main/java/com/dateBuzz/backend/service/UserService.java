@@ -2,6 +2,7 @@ package com.dateBuzz.backend.service;
 
 import com.dateBuzz.backend.controller.requestDto.UserJoinRequestDto;
 import com.dateBuzz.backend.controller.requestDto.UserLoginRequestDto;
+import com.dateBuzz.backend.controller.requestDto.modify.ModifyPasswordRequestDto;
 import com.dateBuzz.backend.controller.responseDto.UserInfoResponseDto;
 import com.dateBuzz.backend.controller.responseDto.UserJoinResponseDto;
 import com.dateBuzz.backend.controller.responseDto.UserLoginResponseDto;
@@ -15,9 +16,11 @@ import com.dateBuzz.backend.repository.UserRepository;
 import com.dateBuzz.backend.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpServerErrorException;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +45,7 @@ public class UserService {
         //Todo: id 중복 체크
         userRepository.findByUserName(requestDto.getUserName())
                 .ifPresent(it -> {
-                    throw new DateBuzzException(ErrorCode.DUPLICATED_NAME, String.format("%s 는 이미 존재하는 아이디입니다.", requestDto.getUserName()));
+                    throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
                 });
         //Todo: nickName 중복 체크
         userRepository.findByNickname(requestDto.getNickname())
@@ -83,5 +86,14 @@ public class UserService {
         int followingCnt = followRepository.countFollowing(user);
         return UserInfoResponseDto.getUserInfo(user, followerCnt, followingCnt, recordCnt);
 
+    }
+
+    public Void ModifyPassword(String userName, ModifyPasswordRequestDto passwordDto) {
+        UserEntity user = userRepository
+                .findByUserName(userName)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s is not founded", userName)));
+        if(!encoder.matches(passwordDto.getOldPassword(), user.getPassword())) throw new DateBuzzException(ErrorCode.INVALID_PASSWORD, "기존 비밀번호가 일치하지 않습니다.");
+        user.modifyPassword(encoder.encode(passwordDto.getNewPassword()));
+        return null;
     }
 }
