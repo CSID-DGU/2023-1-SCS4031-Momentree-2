@@ -62,8 +62,8 @@ public class RecordEntity {
     }
 
     public void fixRecord(ModifyRecordRequestDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.recordedContent = requestDto.getRecordedContent();
-        this.dateDate = requestDto.getDateDate();
+        if(!(requestDto.getTitle() == null)) this.title = requestDto.getTitle();
+        if(!(requestDto.getRecordedContent() == null)) this.recordedContent = requestDto.getRecordedContent();
+        if(!(requestDto.getDateDate() == null)) this.dateDate = requestDto.getDateDate();
     }
 }
