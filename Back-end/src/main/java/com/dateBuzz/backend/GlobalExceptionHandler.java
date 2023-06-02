@@ -1,5 +1,6 @@
 package com.dateBuzz.backend;
 
+import com.dateBuzz.backend.controller.recommend.RecommendController;
 import com.dateBuzz.backend.controller.responseDto.ErrorResponse;
 import com.dateBuzz.backend.exception.DateBuzzException;
 import com.dateBuzz.backend.util.TelegramNotifier;
@@ -24,9 +25,9 @@ public class GlobalExceptionHandler {
         return ErrorResponse.error(errorMessage, status);
     }
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler(Exception.class)
     @ResponseBody
-    public ResponseEntity<String> handleMyException(RuntimeException ex) {
+    public ResponseEntity<String> handleMyException(Exception ex) {
         String errorMessage = ex.getMessage();
         telegramNotifier.sendErrorMessage(errorMessage);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 에러, 수정 요망");
