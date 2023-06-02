@@ -1,13 +1,13 @@
 package com.DateBuzz.Backend.service;
 
 import com.DateBuzz.Backend.controller.requestDto.*;
-import com.DateBuzz.Backend.controller.requestDto.modify.ModifyRecordRequestDto;
+import com.DateBuzz.Backend.controller.requestDto.HashtagRequestDto;
+import com.DateBuzz.Backend.controller.requestDto.modify.*;
 import com.DateBuzz.Backend.controller.responseDto.*;
 import com.DateBuzz.Backend.exception.DateBuzzException;
 import com.DateBuzz.Backend.exception.ErrorCode;
 import com.DateBuzz.Backend.model.entity.*;
 import com.DateBuzz.Backend.repository.*;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class RecordService {
     private final PlaceImgRepository placeImgRepository;
     private final LikeRepository likeRepository;
     private final BookmarkRepository bookmarkRepository;
-    private final EntityManager entityManager;
+    private final FollowRepository followRepository;
     private final S3Service s3Service;
 
     // 로그인 안한 채로 리스트 받기
@@ -42,7 +43,7 @@ public class RecordService {
         for (RecordEntity record : records) {
             List<RecordedPlaceResponseDto> places = new ArrayList<>();
             List<RecordedPlaceEntity> recordedPlaces = recordedPlaceRepository.findAllByRecord(record);
-            for(RecordedPlaceEntity place: recordedPlaces){
+            for (RecordedPlaceEntity place : recordedPlaces) {
                 List<PlaceImgEntity> imgEntities = placeImgRepository.findAllByRecordedPlace(place);
                 List<PlaceImgResponseDto> imgResponseDtos = imgEntities
                         .stream()
@@ -57,12 +58,12 @@ public class RecordService {
                     .map(HashtagResponseDto::fromHashtag)
                     .toList();
 
-            List<HashtagResponseDto> activityTags= hashtagRepository
+            List<HashtagResponseDto> activityTags = hashtagRepository
                     .findAllByRecordAndHashtagType(record, HashtagType.ACTIVITY)
                     .stream()
                     .map(HashtagResponseDto::fromHashtag)
                     .toList();
-            List<HashtagResponseDto> customTags= hashtagRepository
+            List<HashtagResponseDto> customTags = hashtagRepository
                     .findAllByRecordAndHashtagType(record, HashtagType.CUSTOM)
                     .stream()
                     .map(HashtagResponseDto::fromHashtag)
@@ -73,10 +74,16 @@ public class RecordService {
             // bookmark Cnt
             int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecordNotLogin(record, places, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt);
+            int followerCnt = followRepository.countFollower(record.getUser());
+
+            int followingCnt = followRepository.countFollowing(record.getUser());
+
+            int recordCnt = recordRepository.recordCnt(record.getUser());
+
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecordNotLogin(record, places, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt, followingCnt, followerCnt, recordCnt);
             recordedList.add(recordResponseDto);
         }
-        int start = (int)pageable.getOffset();
+        int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), recordedList.size());
         return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
     }
@@ -85,13 +92,13 @@ public class RecordService {
     public Page<RecordResponseDto> getListLogin(Pageable pageable, String userName) {
         UserEntity user = userRepository
                 .findByUserName(userName)
-                .orElseThrow(() ->new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
         List<RecordResponseDto> recordedList = new ArrayList<>();
         List<RecordEntity> records = recordRepository.findAll();
         for (RecordEntity record : records) {
             List<RecordedPlaceResponseDto> places = new ArrayList<>();
             List<RecordedPlaceEntity> recordedPlaces = recordedPlaceRepository.findAllByRecord(record);
-            for(RecordedPlaceEntity place: recordedPlaces){
+            for (RecordedPlaceEntity place : recordedPlaces) {
                 List<PlaceImgEntity> imgEntities = placeImgRepository.findAllByRecordedPlace(place);
                 List<PlaceImgResponseDto> imgResponseDtos = imgEntities
                         .stream()
@@ -106,12 +113,12 @@ public class RecordService {
                     .map(HashtagResponseDto::fromHashtag)
                     .toList();
 
-            List<HashtagResponseDto> activityTags= hashtagRepository
+            List<HashtagResponseDto> activityTags = hashtagRepository
                     .findAllByRecordAndHashtagType(record, HashtagType.ACTIVITY)
                     .stream()
                     .map(HashtagResponseDto::fromHashtag)
                     .toList();
-            List<HashtagResponseDto> customTags= hashtagRepository
+            List<HashtagResponseDto> customTags = hashtagRepository
                     .findAllByRecordAndHashtagType(record, HashtagType.CUSTOM)
                     .stream()
                     .map(HashtagResponseDto::fromHashtag)
@@ -122,7 +129,7 @@ public class RecordService {
             // like Status
             int likeStatus = 0;
             Optional<LikeEntity> like = likeRepository.findByUserAndRecord(user, record);
-            if(like.isPresent() && like.get().getLikeStatus() == 1) likeStatus++;
+            if (like.isPresent() && like.get().getLikeStatus() == 1) likeStatus++;
 
             // bookmark Cnt
             int bookmarkCnt = bookmarkRepository.countByRecord(record);
@@ -130,28 +137,33 @@ public class RecordService {
             // bookmark Status
             int bookmarkStatus = 0;
             Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
-            if(bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
+            if (bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt);
+            int followerCnt = followRepository.countFollower(record.getUser());
+
+            int followingCnt = followRepository.countFollowing(record.getUser());
+
+            int recordCnt = recordRepository.recordCnt(record.getUser());
+
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt);
             recordedList.add(recordResponseDto);
         }
 
-        int start = (int)pageable.getOffset();
+        int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), recordedList.size());
         return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
     }
 
 
-
     public RecordResponseDto getrecordLogin(Long recordId, String userName) {
         UserEntity user = userRepository
                 .findByUserName(userName)
-                .orElseThrow(() ->new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
         RecordEntity record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 에 해당하는 게시물이 존재하지 않습니다.", recordId)));
         List<RecordedPlaceEntity> places = recordedPlaceRepository.findAllByRecord(record);
         List<RecordedPlaceResponseDto> placeResponseDtos = new ArrayList<>();
-        for(RecordedPlaceEntity place : places){
+        for (RecordedPlaceEntity place : places) {
             List<PlaceImgResponseDto> imgResponseDtos = placeImgRepository
                     .findAllByRecordedPlace(place)
                     .stream()
@@ -165,12 +177,12 @@ public class RecordService {
                 .map(HashtagResponseDto::fromHashtag)
                 .toList();
 
-        List<HashtagResponseDto> activityTags= hashtagRepository
+        List<HashtagResponseDto> activityTags = hashtagRepository
                 .findAllByRecordAndHashtagType(record, HashtagType.ACTIVITY)
                 .stream()
                 .map(HashtagResponseDto::fromHashtag)
                 .toList();
-        List<HashtagResponseDto> customTags= hashtagRepository
+        List<HashtagResponseDto> customTags = hashtagRepository
                 .findAllByRecordAndHashtagType(record, HashtagType.CUSTOM)
                 .stream()
                 .map(HashtagResponseDto::fromHashtag)
@@ -182,7 +194,7 @@ public class RecordService {
         // like Status
         int likeStatus = 0;
         Optional<LikeEntity> like = likeRepository.findByUserAndRecord(user, record);
-        if(like.isPresent() && like.get().getLikeStatus() == 1) likeStatus++;
+        if (like.isPresent() && like.get().getLikeStatus() == 1) likeStatus++;
 
         // bookmark Cnt
         int bookmarkCnt = bookmarkRepository.countByRecord(record);
@@ -190,17 +202,23 @@ public class RecordService {
         // bookmark Status
         int bookmarkStatus = 0;
         Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
-        if(bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
+        if (bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
 
-        return RecordResponseDto.fromRecord(record, placeResponseDtos, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt);
+        int followerCnt = followRepository.countFollower(record.getUser());
+
+        int followingCnt = followRepository.countFollowing(record.getUser());
+
+        int recordCnt = recordRepository.recordCnt(record.getUser());
+
+        return RecordResponseDto.fromRecord(record, placeResponseDtos, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt);
     }
 
     public Long deleteArticle(Long recordId, String userName) {
         UserEntity user = userRepository.findByUserName(userName)
-                .orElseThrow(() ->new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
         RecordEntity record = recordRepository.findById(recordId)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 에 해당하는 게시물이 존재하지 않습니다.", recordId)));
-        if(record.getUser() != user)
+        if (record.getUser() != user)
             throw new DateBuzzException(ErrorCode.INVALID_USER, String.format("%s는 %d를 삭제할 권한이 없습니다.", userName, recordId));
         recordRepository.delete(record);
         return recordId;
@@ -214,7 +232,7 @@ public class RecordService {
         for (RecordEntity record : records) {
             List<RecordedPlaceResponseDto> places = new ArrayList<>();
             List<RecordedPlaceEntity> recordedPlaces = recordedPlaceRepository.findAllByRecord(record);
-            for(RecordedPlaceEntity place: recordedPlaces){
+            for (RecordedPlaceEntity place : recordedPlaces) {
                 List<PlaceImgEntity> imgEntities = placeImgRepository.findAllByRecordedPlace(place);
                 List<PlaceImgResponseDto> imgResponseDtos = imgEntities
                         .stream()
@@ -229,12 +247,12 @@ public class RecordService {
                     .map(HashtagResponseDto::fromHashtag)
                     .toList();
 
-            List<HashtagResponseDto> activityTags= hashtagRepository
+            List<HashtagResponseDto> activityTags = hashtagRepository
                     .findAllByRecordAndHashtagType(record, HashtagType.ACTIVITY)
                     .stream()
                     .map(HashtagResponseDto::fromHashtag)
                     .toList();
-            List<HashtagResponseDto> customTags= hashtagRepository
+            List<HashtagResponseDto> customTags = hashtagRepository
                     .findAllByRecordAndHashtagType(record, HashtagType.CUSTOM)
                     .stream()
                     .map(HashtagResponseDto::fromHashtag)
@@ -245,20 +263,26 @@ public class RecordService {
 
             // like Status
             int likeStatus = 0;
-            if(likeRepository.findByUserAndRecord(user, record).isPresent()) likeStatus++;
+            if (likeRepository.findByUserAndRecord(user, record).isPresent()) likeStatus++;
             // bookmark Cnt
             int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
             // bookmark Status
             int bookmarkStatus = 0;
             Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
-            if(bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
+            if (bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt);
+            int followerCnt = followRepository.countFollower(record.getUser());
+
+            int followingCnt = followRepository.countFollowing(record.getUser());
+
+            int recordCnt = recordRepository.recordCnt(record.getUser());
+
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt);
             recordedList.add(recordResponseDto);
 
         }
-        int start = (int)pageable.getOffset();
+        int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), recordedList.size());
         return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
     }
@@ -268,7 +292,7 @@ public class RecordService {
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 에 해당하는 게시물이 존재하지 않습니다.", recordId)));
         List<RecordedPlaceEntity> places = recordedPlaceRepository.findAllByRecord(record);
         List<RecordedPlaceResponseDto> placeResponseDtos = new ArrayList<>();
-        for(RecordedPlaceEntity place : places){
+        for (RecordedPlaceEntity place : places) {
             List<PlaceImgResponseDto> imgResponseDtos = placeImgRepository
                     .findAllByRecordedPlace(place)
                     .stream()
@@ -282,12 +306,12 @@ public class RecordService {
                 .map(HashtagResponseDto::fromHashtag)
                 .toList();
 
-        List<HashtagResponseDto> activityTags= hashtagRepository
+        List<HashtagResponseDto> activityTags = hashtagRepository
                 .findAllByRecordAndHashtagType(record, HashtagType.ACTIVITY)
                 .stream()
                 .map(HashtagResponseDto::fromHashtag)
                 .toList();
-        List<HashtagResponseDto> customTags= hashtagRepository
+        List<HashtagResponseDto> customTags = hashtagRepository
                 .findAllByRecordAndHashtagType(record, HashtagType.CUSTOM)
                 .stream()
                 .map(HashtagResponseDto::fromHashtag)
@@ -298,24 +322,30 @@ public class RecordService {
         // bookmark Cnt
         int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
-        return RecordResponseDto.fromRecordNotLogin(record, placeResponseDtos, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt);
+        int followerCnt = followRepository.countFollower(record.getUser());
+
+        int followingCnt = followRepository.countFollowing(record.getUser());
+
+        int recordCnt = recordRepository.recordCnt(record.getUser());
+
+        return RecordResponseDto.fromRecordNotLogin(record, placeResponseDtos, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt, followingCnt, followerCnt, recordCnt);
 
     }
 
-    public void writes(RecordRequestDto requestDto, String userName){
+    public void writes(RecordRequestDto requestDto, String userName) {
         UserEntity user = userRepository
                 .findByUserName(userName)
-                .orElseThrow(() ->new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
         RecordEntity record = RecordEntity.FromRecordRequestDtoAndUserEntity(requestDto, user);
         recordRepository.saveAndFlush(record);
-        for(HashtagRequestDto hashtags: requestDto.getHashtags()){
+        for (HashtagRequestDto hashtags : requestDto.getHashtags()) {
             HashtagEntity hashtag = HashtagEntity.FromRecordRequestDtoAndRecordEntity(hashtags, record);
             hashtagRepository.save(hashtag);
         }
-        for(RecordedPlaceRequestDto recordedPlaces: requestDto.getRecordedPlaces()){
-            RecordedPlaceEntity recordedPlace = RecordedPlaceEntity.FromRecordedRequestDtoAndRecordEntity(recordedPlaces, record);
-            if(!(recordedPlaces.getImages() == null)){
-                for(PlaceImageRequestDto imageRequestDto: recordedPlaces.getImages()){
+        for (RecordedPlaceRequestDto recordedPlaces : requestDto.getRecordedPlaces()) {
+            RecordedPlaceEntity recordedPlace = RecordedPlaceEntity.fromRecordedRequestDtoAndRecordEntity(recordedPlaces, record);
+            if (!(recordedPlaces.getImages() == null)) {
+                for (PlaceImageRequestDto imageRequestDto : recordedPlaces.getImages()) {
                     String imageName = imageRequestDto.getFileName();
                     String contentType = imageRequestDto.getContentType();
                     String url = s3Service.uploadFile(imageRequestDto.getImgFormData(), imageName, contentType);
@@ -339,7 +369,7 @@ public class RecordService {
         for (RecordEntity record : records) {
             List<RecordedPlaceResponseDto> places = new ArrayList<>();
             List<RecordedPlaceEntity> recordedPlaces = recordedPlaceRepository.findAllByRecord(record);
-            for(RecordedPlaceEntity place: recordedPlaces){
+            for (RecordedPlaceEntity place : recordedPlaces) {
                 List<PlaceImgEntity> imgEntities = placeImgRepository.findAllByRecordedPlace(place);
                 List<PlaceImgResponseDto> imgResponseDtos = imgEntities
                         .stream()
@@ -354,12 +384,12 @@ public class RecordService {
                     .map(HashtagResponseDto::fromHashtag)
                     .toList();
 
-            List<HashtagResponseDto> activityTags= hashtagRepository
+            List<HashtagResponseDto> activityTags = hashtagRepository
                     .findAllByRecordAndHashtagType(record, HashtagType.ACTIVITY)
                     .stream()
                     .map(HashtagResponseDto::fromHashtag)
                     .toList();
-            List<HashtagResponseDto> customTags= hashtagRepository
+            List<HashtagResponseDto> customTags = hashtagRepository
                     .findAllByRecordAndHashtagType(record, HashtagType.CUSTOM)
                     .stream()
                     .map(HashtagResponseDto::fromHashtag)
@@ -370,20 +400,26 @@ public class RecordService {
 
             // like Status
             int likeStatus = 0;
-            if(likeRepository.findByUserAndRecord(user, record).isPresent()) likeStatus++;
+            if (likeRepository.findByUserAndRecord(user, record).isPresent()) likeStatus++;
             // bookmark Cnt
             int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
             // bookmark Status
             int bookmarkStatus = 0;
             Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
-            if(bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
+            if (bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt);
+            int followerCnt = followRepository.countFollower(record.getUser());
+
+            int followingCnt = followRepository.countFollowing(record.getUser());
+
+            int recordCnt = recordRepository.recordCnt(record.getUser());
+
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt);
             recordedList.add(recordResponseDto);
 
         }
-        int start = (int)pageable.getOffset();
+        int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), recordedList.size());
         return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
     }
@@ -395,5 +431,75 @@ public class RecordService {
         RecordEntity record = recordRepository.findByUserAndId(user, recordId)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 가 작성한 %d 게시물이 존재하지 않습니다.", name, recordId)));
         record.fixRecord(requestDto);
+    }
+
+    public Void deletePlace(Long recordedId, String name, DeleteRecordedPlaceRequestDto requestDto) {
+        UserEntity user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
+        RecordEntity record = recordRepository.findByIdAndUser(recordedId, user).orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND));
+        List<RecordedPlaceEntity> places = recordedPlaceRepository.findAllByRecord(record);
+        for (PlaceIdRequestDto placeId : requestDto.getDeletePlace()) {
+            RecordedPlaceEntity place = recordedPlaceRepository
+                    .findByIdAndRecord(placeId.getPlaceId(), record)
+                    .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND));
+            recordedPlaceRepository.delete(place);
+            int order = places.indexOf(place);
+            for (int i = order + 1; i < places.size(); i++) {
+                places.get(i).reduceOrder();
+            }
+        }
+        return null;
+    }
+
+    public Void addPlace(Long recordId, String name, AddPlacesRequestDto requestDto) {
+        UserEntity user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
+        RecordEntity record = recordRepository.findByUserAndId(user, recordId)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 가 작성한 %d 게시물이 존재하지 않습니다.", name, recordId)));
+
+        // delete 된 장소를 제외한 모든 장소 리스트로 만들기
+        List<RecordedPlaceEntity> recordedPlaces = recordedPlaceRepository.findAllByRecord(record);
+
+        // 장소 5개 제한
+        if (recordedPlaces.size() > 5) throw new DateBuzzException(ErrorCode.MAX_PLACES);
+
+        // 새로운 장소를 돌면서 order 늘리면서 저장하기
+        for (RecordedPlaceRequestDto place : requestDto.getNewPlaces()) {
+            int orders = place.getOrders();
+            for (int i = orders - 1; i < recordedPlaces.size(); i++) {
+                recordedPlaces.get(i).increaseOrder();
+            }
+            RecordedPlaceEntity newPlace = RecordedPlaceEntity.fromRecordedRequestDtoAndRecordEntity(place, record);
+            recordedPlaceRepository.saveAndFlush(newPlace);
+            recordedPlaces.add(newPlace);
+            recordedPlaces.sort(Comparator.comparing(RecordedPlaceEntity::getOrders));
+        }
+        return null;
+    }
+
+    public Void modifyPlace(Long recordId, String name, ModifyRecordedPlaceRequestDto requestDto) {
+        UserEntity user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
+        RecordEntity record = recordRepository.findByUserAndId(user, recordId)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 가 작성한 %d 게시물이 존재하지 않습니다.", name, recordId)));
+        for(ModifyRecordedPlaceInfoRequestDto info : requestDto.getModifyInfo()){
+            RecordedPlaceEntity changingPlace = recordedPlaceRepository.findByIdAndRecord(info.getPlaceId(), record).orElseThrow(() -> new DateBuzzException(ErrorCode.INVALID_USER, "해당 기록에는 삭제하려는 장소가 존재하지 않습니다."));
+            changingPlace.modifyPlaceInfo(info);
+        }
+        return null;
+    }
+
+    public Void changeOrder(Long recordId, String name, ModifyRecordedPlaceOrderRequestDto requestDto) {
+        UserEntity user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
+        RecordEntity record = recordRepository.findByUserAndId(user, recordId)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 가 작성한 %d 게시물이 존재하지 않습니다.", name, recordId)));
+
+        // requestDto 돌면서 순서를 변경
+        for(RecordedOrder order : requestDto.getChangingOrders()){
+            RecordedPlaceEntity place = recordedPlaceRepository.findByIdAndRecord(order.getPlaceId(), record).orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND));
+            place.changeOrder(order.getNewOrders());
+        }
+        return null;
     }
 }
