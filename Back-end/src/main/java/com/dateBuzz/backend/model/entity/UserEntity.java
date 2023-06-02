@@ -65,4 +65,8 @@ public class UserEntity {
                 email
         );
     }
+
+    public void modifyPassword(String newPassword) {
+        this.password = newPassword;
+    }
 }
