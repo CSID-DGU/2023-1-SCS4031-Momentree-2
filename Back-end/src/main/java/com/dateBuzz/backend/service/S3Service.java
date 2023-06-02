@@ -8,9 +8,11 @@ import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ public class S3Service {
     private String bucket;
     private final AmazonS3 amazonS3;
 
-    public String uploadFile(byte[] fileData, String fileName, String contentType) {
+    public String uploadFileByteArray(byte[] fileData, String fileName, String contentType) {
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(contentType);
@@ -39,6 +41,24 @@ public class S3Service {
         } catch (AmazonServiceException | IOException e) {
             // 예외 처리를 개선하여 적절한 조치를 취하도록 함
             e.printStackTrace();
+            throw new DateBuzzException(ErrorCode.S3_UPLOAD_PROBLEM);
+        }
+    }
+    public String uploadProfileImage(MultipartFile profileImg) {
+        try {
+            // 고유한 파일 이름 생성
+            String fileName = UUID.randomUUID().toString() + "_" + profileImg.getOriginalFilename();
+
+            // S3에 파일 업로드
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(profileImg.getSize());
+            amazonS3.putObject(bucket, fileName, profileImg.getInputStream(), metadata);
+
+            // 업로드된 파일의 URL 생성
+            return amazonS3.getUrl(bucket, fileName).toString();
+
+        } catch (IOException e) {
+            // 업로드 실패 처리
             throw new DateBuzzException(ErrorCode.S3_UPLOAD_PROBLEM);
         }
     }

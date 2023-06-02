@@ -348,7 +348,7 @@ public class RecordService {
                 for (PlaceImageRequestDto imageRequestDto : recordedPlaces.getImages()) {
                     String imageName = imageRequestDto.getFileName();
                     String contentType = imageRequestDto.getContentType();
-                    String url = s3Service.uploadFile(imageRequestDto.getImgFormData(), imageName, contentType);
+                    String url = s3Service.uploadFileByteArray(imageRequestDto.getImgFormData(), imageName, contentType);
                     PlaceImgEntity placeImg = PlaceImgEntity.FromPlaceImgRequestDto(recordedPlace, imageRequestDto, url);
                     placeImgRepository.save(placeImg);
                 }
