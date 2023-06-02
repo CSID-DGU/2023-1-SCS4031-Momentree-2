@@ -1,6 +1,7 @@
 package com.dateBuzz.backend.model.entity;
 
 
+import com.dateBuzz.backend.controller.requestDto.modify.ModifyUserInfoRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -68,5 +69,10 @@ public class UserEntity {
 
     public void modifyPassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public void modifyProfile(ModifyUserInfoRequestDto requestDto, String imgUrl) {
+        this.nickname = requestDto.getNickname();
+        this.profileImg = imgUrl;
     }
 }
