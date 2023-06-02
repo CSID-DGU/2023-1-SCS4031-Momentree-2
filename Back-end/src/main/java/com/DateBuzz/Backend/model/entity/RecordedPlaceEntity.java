@@ -2,6 +2,7 @@ package com.DateBuzz.Backend.model.entity;
 
 
 import com.DateBuzz.Backend.controller.requestDto.RecordedPlaceRequestDto;
+import com.DateBuzz.Backend.controller.requestDto.modify.ModifyRecordedPlaceInfoRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
@@ -46,7 +47,7 @@ public class RecordedPlaceEntity {
     @Column(name = "deleted_at")
     private Timestamp deletedAt;
 
-    public static RecordedPlaceEntity FromRecordedRequestDtoAndRecordEntity(RecordedPlaceRequestDto recordedPlaceDto, RecordEntity record) {
+    public static RecordedPlaceEntity fromRecordedRequestDtoAndRecordEntity(RecordedPlaceRequestDto recordedPlaceDto, RecordEntity record) {
         RecordedPlaceEntity recordedPlace = new RecordedPlaceEntity();
         recordedPlace.record = record;
         recordedPlace.orders = recordedPlaceDto.getOrders();
@@ -66,5 +67,21 @@ public class RecordedPlaceEntity {
     @PreUpdate
     void updatedAt(){
         this.updatedAt = Timestamp.from(Instant.now());
+    }
+
+    public void modifyPlaceInfo(ModifyRecordedPlaceInfoRequestDto requestDto) {
+        this.placeContent = requestDto.getNewPlaceContent();
+    }
+
+    public void reduceOrder(){
+        this.orders --;
+    }
+
+    public void increaseOrder(){
+        this.orders ++;
+    }
+
+    public void changeOrder(int newOrder){
+        this.orders = newOrder;
     }
 }

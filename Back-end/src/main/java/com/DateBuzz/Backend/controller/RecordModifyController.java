@@ -5,21 +5,18 @@ import com.DateBuzz.Backend.controller.responseDto.Response;
 import com.DateBuzz.Backend.service.RecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/community")
 public class RecordModifyController {
 
-    private RecordService recordService;
+    private final RecordService recordService;
 
-    @PatchMapping("/{record_id}")
-    public Response<Void> modifyRecord(@PathVariable Long record_id, ModifyRecordRequestDto requestDto, Authentication authentication){
-        recordService.modifyRecord(record_id, requestDto, authentication.getName());
+    @PatchMapping("/{recordId}")
+    public Response<Void> modifyRecord(@PathVariable Long recordId, @RequestBody ModifyRecordRequestDto requestDto, Authentication authentication){
+        recordService.modifyRecord(recordId, requestDto, authentication.getName());
         return Response.success();
     }
 }
