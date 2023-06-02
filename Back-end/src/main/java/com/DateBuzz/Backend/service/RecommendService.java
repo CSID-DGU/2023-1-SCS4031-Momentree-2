@@ -29,7 +29,9 @@ public class RecommendService {
     private final PlaceImgRepository placeImgRepository;
     private final LikeRepository likeRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final FollowRepository followRepository;
     public List<RecordResponseDto> getRecommendation(String rawList) {
+        if(rawList.equals("[]")) return new ArrayList<>();
         String raw = rawList.substring(1, rawList.length() - 1);
         String [] stringToList = raw.split(", ");
 
@@ -76,7 +78,13 @@ public class RecommendService {
             // bookmark Cnt
             int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecordNotLogin(record, places, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt);
+            int followerCnt = followRepository.countFollower(record.getUser());
+
+            int followingCnt = followRepository.countFollowing(record.getUser());
+
+            int recordCnt = recordRepository.recordCnt(record.getUser());
+
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecordNotLogin(record, places, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt, followingCnt, followerCnt, recordCnt);
             recordedList.add(recordResponseDto);
         }
         return recordedList;

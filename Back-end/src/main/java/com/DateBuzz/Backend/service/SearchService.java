@@ -23,6 +23,8 @@ public class SearchService {
     private final PlaceImgRepository placeImgRepository;
     private final LikeRepository likeRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final FollowRepository followRepository;
+    private final RecordRepository recordRepository;
 
     public Page<RecordResponseDto> findByTag(String hashtagName, Pageable pageable) {
         List<HashtagEntity> hashtagRecords = hashtagRepository.findAllByTagName(hashtagName);
@@ -62,7 +64,13 @@ public class SearchService {
             // bookmark Cnt
             int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecordNotLogin(record, places, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt);
+            int followerCnt = followRepository.countFollower(record.getUser());
+
+            int followingCnt = followRepository.countFollowing(record.getUser());
+
+            int recordCnt = recordRepository.recordCnt(record.getUser());
+
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecordNotLogin(record, places, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt, followingCnt, followerCnt, recordCnt);
             recordedList.add(recordResponseDto);
         }
         int start = (int)pageable.getOffset();
