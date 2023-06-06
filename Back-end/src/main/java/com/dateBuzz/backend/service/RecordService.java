@@ -436,7 +436,7 @@ public class RecordService {
     public Void deletePlace(Long recordedId, String name, DeleteRecordedPlaceRequestDto requestDto) {
         UserEntity user = userRepository.findByUserName(name)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
-        RecordEntity record = recordRepository.findByIdAndUser(recordedId, user).orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND));
+        RecordEntity record = recordRepository.findByUserAndId(user, recordedId).orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND));
         List<RecordedPlaceEntity> places = recordedPlaceRepository.findAllByRecord(record);
         for (PlaceIdRequestDto placeId : requestDto.getDeletePlace()) {
             RecordedPlaceEntity place = recordedPlaceRepository
@@ -501,5 +501,18 @@ public class RecordService {
             place.changeOrder(order.getNewOrders());
         }
         return null;
+    }
+
+    public List<FollowListResponseDto> getMyFollower(String name) {
+        UserEntity user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
+        List<FollowEntity> followList = followRepository.findAllByFollowing(user);
+        List<FollowListResponseDto> followInfoList = new ArrayList<>();
+        for(FollowEntity follow : followList){
+            int followCnt = followRepository.countFollowing(follow.getFollower());
+            int followingCnt = followRepository.countFollowing(follow.getFollowing());
+            followInfoList.add(FollowListResponseDto.fromFollower(follow, followCnt, followingCnt));
+        }
+        return followInfoList;
     }
 }
