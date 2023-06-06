@@ -40,7 +40,6 @@ public class S3Service {
             }
         } catch (AmazonServiceException | IOException e) {
             // 예외 처리를 개선하여 적절한 조치를 취하도록 함
-            e.printStackTrace();
             throw new DateBuzzException(ErrorCode.S3_UPLOAD_PROBLEM);
         }
     }

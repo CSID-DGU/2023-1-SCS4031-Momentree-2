@@ -18,10 +18,8 @@ public class PlaceImgEntity {
     @JoinColumn(name = "place_id")
     private RecordedPlaceEntity recordedPlace;
 
-    @Column(name = "orders")
     private int orders;
 
-    @Column(name = "img_url")
     private String imgUrl;
 
     @Builder

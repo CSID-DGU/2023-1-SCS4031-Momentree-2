@@ -11,8 +11,6 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "\"Hashtag\"")
-@SQLDelete(sql = "update recorded_place set deleted_at = now() where id = ?")
-@Where(clause = "deleted_at is null")
 @Getter
 public class HashtagEntity {
 

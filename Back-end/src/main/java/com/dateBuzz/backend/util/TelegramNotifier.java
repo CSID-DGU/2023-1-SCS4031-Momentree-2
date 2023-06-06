@@ -1,5 +1,6 @@
 package com.dateBuzz.backend.util;
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,11 +14,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class TelegramNotifier extends TelegramLongPollingBot {
 
     @Value("${bot.token}")
-    private final String BOT_TOKEN;
+    private String BOT_TOKEN;
     @Value("${bot.username}")
-    private final String BOT_USERNAME;
-    @Value("${bot.chat-id}")
-    private final String CHAT_ID;
+    private String BOT_USERNAME;
+    @Value("${bot.chatId}")
+    private String CHAT_ID;
 
     @Override
     public void onUpdateReceived(Update update) {

@@ -25,13 +25,9 @@ public class BookmarkEntity {
     @JoinColumn(name = "record_id")
     private RecordEntity record;
 
-    @Column(name = "bookmark_status")
     private int bookmarkStatus;
-    @Column(name = "created_at")
     private Timestamp createdAt;
-    @Column(name = "updated_at")
     private Timestamp updatedAt;
-    @Column(name = "deleted_at")
     private Timestamp deletedAt;
 
     @PrePersist

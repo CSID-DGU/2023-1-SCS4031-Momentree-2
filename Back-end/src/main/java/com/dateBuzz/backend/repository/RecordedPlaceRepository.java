@@ -13,8 +13,9 @@ import java.util.Optional;
 @Repository
 public interface RecordedPlaceRepository extends JpaRepository<RecordedPlaceEntity, Long> {
 
-    @Query(value = "select entity from RecordedPlaceEntity entity where entity.record = :record order by entity.orders asc ")
+    @Query(value = "select entity from RecordedPlaceEntity entity where entity.record = :record and entity.deletedAt is null order by entity.orders asc ")
     List<RecordedPlaceEntity> findAllByRecord(@Param("record") RecordEntity record);
 
-    Optional<RecordedPlaceEntity> findByIdAndRecord(Long placeId, RecordEntity record);
+    @Query(value = "select entity from RecordedPlaceEntity entity where entity.id = :placeId and entity.record = :record and entity.deletedAt is null")
+    Optional<RecordedPlaceEntity> findByIdAndRecord(@Param("placeId") Long placeId, @Param("record") RecordEntity record);
 }

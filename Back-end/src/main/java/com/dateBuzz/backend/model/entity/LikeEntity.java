@@ -25,13 +25,9 @@ public class LikeEntity {
     @JoinColumn(name = "record_id")
     private RecordEntity record;
 
-    @Column(name = "like_status")
     private int likeStatus;
-    @Column(name = "created_at")
     private Timestamp createdAt;
-    @Column(name = "updated_at")
     private Timestamp updatedAt;
-    @Column(name = "deleted_at")
     private Timestamp deletedAt;
 
     @Builder

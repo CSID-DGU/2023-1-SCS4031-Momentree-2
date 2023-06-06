@@ -24,21 +24,14 @@ public class RecordEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
-    @Column(name = "title")
     private String title;
-    @Column(name = "recorded_content")
     private String recordedContent;
-    @Column(name = "date_date")
     private String dateDate;
     @Enumerated(EnumType.STRING)
-    @Column(name = "exposure")
     private Exposure exposure;
 
-    @Column(name = "created_at")
     private Timestamp createdAt;
-    @Column(name = "updated_at")
     private Timestamp updatedAt;
-    @Column(name = "deleted_at")
     private Timestamp deletedAt;
 
     @PrePersist

@@ -15,7 +15,6 @@ public interface RecordRepository extends JpaRepository<RecordEntity, Long> {
     @Query(value = "select count(*) from RecordEntity record where record.user = :user and record.deletedAt is null")
     Integer recordCnt(UserEntity user);
 
+    @Query(value = "select record from RecordEntity record where record.user = :user and record.id = :id and record.deletedAt is null")
     Optional<RecordEntity> findByUserAndId(UserEntity user, Long id);
-
-    Optional<RecordEntity> findByIdAndUser(Long recordedId, UserEntity user);
 }
