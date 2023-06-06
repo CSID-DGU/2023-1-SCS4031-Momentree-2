@@ -21,7 +21,6 @@ public class FollowEntity {
     @JoinColumn(name = "follower_id")
     private UserEntity follower;
 
-    @Column(name = "follow_status")
     private int followStatus;
 
     private FollowEntity(UserEntity following, UserEntity follower) {

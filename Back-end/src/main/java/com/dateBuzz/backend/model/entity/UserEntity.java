@@ -24,22 +24,14 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "user_name")
     private String userName;
-    @Column(name = "password")
     private String password;
-    @Column(name = "profile_img")
     private String profileImg;
-    @Column(name = "nickname")
     private String nickname;
-    @Column(name = "email")
     private String email;
 
-    @Column(name = "created_at")
     private Timestamp createdAt;
-    @Column(name = "updated_at")
     private Timestamp updatedAt;
-    @Column(name = "deleted_at")
     private Timestamp deletedAt;
 
     @PrePersist
