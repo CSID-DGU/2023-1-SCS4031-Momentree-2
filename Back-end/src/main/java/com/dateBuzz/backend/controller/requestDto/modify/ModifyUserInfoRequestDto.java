@@ -10,5 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 public class ModifyUserInfoRequestDto {
     private String nickname;
-    private MultipartFile profileImg;
+    private byte[] profileImg;
+    private String fileName;
+    private String contentType;
 }

@@ -84,8 +84,8 @@ public class UserService {
                 .findByUserName(userName)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s is not founded", userName)));
         int recordCnt = recordRepository.recordCnt(user);
-        int followerCnt = followRepository.countFollower(user);
-        int followingCnt = followRepository.countFollowing(user);
+        int followerCnt = followRepository.countFollowed(user.getId());
+        int followingCnt = followRepository.countFollowing(user.getId());
         return UserInfoResponseDto.getUserInfo(user, followerCnt, followingCnt, recordCnt);
 
     }
@@ -103,8 +103,20 @@ public class UserService {
         UserEntity user = userRepository
                 .findByUserName(userName)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s is not founded", userName)));
-        String imgUrl = s3Service.uploadProfileImage(requestDto.getProfileImg());
-        user.modifyProfile(requestDto, imgUrl);
+        String imageName = requestDto.getFileName();
+        String contentType = requestDto.getContentType();
+        String url = s3Service.uploadFileByteArray(requestDto.getProfileImg(), imageName, contentType);
+        user.modifyProfile(requestDto, url);
         return null;
+    }
+
+    public UserInfoResponseDto getOtherInfo(String nickname) {
+        UserEntity user = userRepository
+                .findByNickname(nickname)
+                .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s is not founded", nickname)));
+        int recordCnt = recordRepository.recordCnt(user);
+        int followerCnt = followRepository.countFollowed(user.getId());
+        int followingCnt = followRepository.countFollowing(user.getId());
+        return UserInfoResponseDto.getUserInfo(user, followerCnt, followingCnt, recordCnt);
     }
 }

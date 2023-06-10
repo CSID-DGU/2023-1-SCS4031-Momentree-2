@@ -38,6 +38,11 @@ public class UserController {
         return Response.success(userService.getInfo(authentication.getName()));
     }
 
+    @GetMapping("/user")
+    public Response<UserInfoResponseDto> getUserInfo(@RequestParam("nickname") String nickname){
+        return Response.success(userService.getOtherInfo(nickname));
+    }
+
     @PatchMapping("/modifyPassword")
     public Response<Void> modifyPassword(@RequestBody ModifyPasswordRequestDto passwordDto, Authentication authentication){
         return Response.success(userService.ModifyPassword(authentication.getName(), passwordDto));
@@ -50,7 +55,6 @@ public class UserController {
 
     @GetMapping("/records")
     public Response<Page<RecordResponseDto>> getUserRecord(@PageableDefault(size = 5, sort = "recordedID", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam String nickname){
-        Page<RecordResponseDto> myRecord = recordService.getUserRecord(pageable, nickname);
-        return Response.success(myRecord);
+        return Response.success(recordService.getUserRecord(pageable, nickname));
     }
 }
