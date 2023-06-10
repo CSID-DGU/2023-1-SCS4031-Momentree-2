@@ -14,14 +14,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @AutoConfigureMockMvc
 public class RecordControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private RecordService recordService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+//    @Autowired
+//    private MockMvc mockMvc;
+//
+//    @Autowired
+//    private RecordService recordService;
+//
+//    @Autowired
+//    private ObjectMapper objectMapper;
 
 //    @Test
 //    void 게시글_목록_받아오기(){
