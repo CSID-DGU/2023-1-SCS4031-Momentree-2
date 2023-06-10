@@ -31,7 +31,7 @@ jobs:
 
     - name: Overwrite application.yaml with Secrets
       run: |
-        echo "${{ secrets.APPLICATION_YAML }}" > ./src/main/resources/application.yaml
+        echo "${{ secrets.APPLICATION_YAML }}" > ../../Back-end/src/main/resources/application.yaml
         
     - name: Move JAR to Docker context
       run: mv ./Back-end/build/libs/*.jar ./Back-end/app.jar
