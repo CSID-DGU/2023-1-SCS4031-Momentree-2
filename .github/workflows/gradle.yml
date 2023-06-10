@@ -29,18 +29,15 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-      with:
-        arguments: build
-        project-dir: /Back-end
-
     - name: Overwrite application.yaml with Secrets
       run: |
         echo "${{ secrets.APPLICATION_YAML }}" > ./src/main/resources/application.yaml
         
     - name: Move JAR to Docker context
       run: mv ./Back-end/build/libs/*.jar ./Back-end/app.jar
+      
+    - name: Build with Gradle
+      run: ./gradlew clean build
       
     - name: Login to DockerHub
       uses: docker/login-action@v1 
