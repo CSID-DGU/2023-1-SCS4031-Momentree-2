@@ -2,7 +2,7 @@
 The following was discovered as part of building this project:
 
 * The JVM level was changed from '11' to '17', review the [JDK Version Range](https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-Versions#jdk-version-range) on the wiki for more details.
-* The original package name 'com.DateBuzz.Back-end' is invalid and this project uses 'com.DateBuzz.Backend' instead.
+* The original package name 'com.dateBuzz.Back-end' is invalid and this project uses 'com.dateBuzz.backend' instead.
 
 # Getting Started
 
