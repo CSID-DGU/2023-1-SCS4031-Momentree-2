@@ -45,6 +45,7 @@ jobs:
 
     - name: Build with Gradle
       run: |
+        cd ./Back-end
         gradle clean build
 
       
