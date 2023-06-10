@@ -37,6 +37,7 @@ jobs:
       
     - name: Install Gradle
       run: |
+        cd ./Back-end
         wget https://services.gradle.org/distributions/gradle-7.6.1-bin.zip
         unzip -d $HOME/gradle gradle-7.6.1-bin.zip
         echo "export PATH=\$HOME/gradle/gradle-7.6.1/bin:\$PATH" >> $HOME/.bashrc
