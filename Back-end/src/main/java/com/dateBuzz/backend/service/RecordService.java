@@ -36,8 +36,7 @@ public class RecordService {
     private final S3Service s3Service;
 
     // 로그인 안한 채로 리스트 받기
-    public Page<RecordResponseDto> getList(Pageable pageable) {
-
+    public Page<RecordResponseDto> getList(Pageable pageable, String sort) {
         List<RecordResponseDto> recordedList = new ArrayList<>();
         List<RecordEntity> records = recordRepository.findAll();
         for (RecordEntity record : records) {
@@ -74,22 +73,23 @@ public class RecordService {
             // bookmark Cnt
             int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
-            int followerCnt = followRepository.countFollower(record.getUser());
+            int followerCnt = followRepository.countFollowed(record.getUser().getId());
 
-            int followingCnt = followRepository.countFollowing(record.getUser());
+            int followingCnt = followRepository.countFollowing(record.getUser().getId());
 
             int recordCnt = recordRepository.recordCnt(record.getUser());
 
             RecordResponseDto recordResponseDto = RecordResponseDto.fromRecordNotLogin(record, places, vibeTags, activityTags, customTags, likeCnt, bookmarkCnt, followingCnt, followerCnt, recordCnt);
             recordedList.add(recordResponseDto);
         }
+        sort(sort, recordedList);
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), recordedList.size());
         return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
     }
 
     // 로그인 한 채로 리스트 받기
-    public Page<RecordResponseDto> getListLogin(Pageable pageable, String userName) {
+    public Page<RecordResponseDto> getListLogin(Pageable pageable, String userName, String sort) {
         UserEntity user = userRepository
                 .findByUserName(userName)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", userName)));
@@ -139,16 +139,16 @@ public class RecordService {
             Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
             if (bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
 
-            int followerCnt = followRepository.countFollower(record.getUser());
+            int followerCnt = followRepository.countFollowed(record.getUser().getId());
 
-            int followingCnt = followRepository.countFollowing(record.getUser());
+            int followingCnt = followRepository.countFollowing(record.getUser().getId());
 
             int recordCnt = recordRepository.recordCnt(record.getUser());
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt);
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt, recordCnt);
             recordedList.add(recordResponseDto);
         }
-
+        sort(sort, recordedList);
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), recordedList.size());
         return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
@@ -200,17 +200,21 @@ public class RecordService {
         int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
         // bookmark Status
-        int bookmarkStatus = 0;
+        int isBookmark = 0;
         Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
-        if (bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
+        if (bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) isBookmark = 1;
 
-        int followerCnt = followRepository.countFollower(record.getUser());
+        int isFollowing = 0;
+        Optional<FollowEntity> follow = followRepository.findByFollowedAndFollower(record.getUser(), user);
+        if(follow.isPresent() && follow.get().getFollowStatus() == 1) isFollowing = 1;
 
-        int followingCnt = followRepository.countFollowing(record.getUser());
+        int followerCnt = followRepository.countFollowed(record.getUser().getId());
+
+        int followingCnt = followRepository.countFollowing(record.getUser().getId());
 
         int recordCnt = recordRepository.recordCnt(record.getUser());
 
-        return RecordResponseDto.fromRecord(record, placeResponseDtos, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt);
+        return RecordResponseDto.fromRecord(record, placeResponseDtos, vibeTags, activityTags, customTags, likeStatus, likeCnt, isBookmark, bookmarkCnt, followingCnt, followerCnt, isFollowing, recordCnt);
     }
 
     public Long deleteArticle(Long recordId, String userName) {
@@ -220,7 +224,9 @@ public class RecordService {
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 에 해당하는 게시물이 존재하지 않습니다.", recordId)));
         if (record.getUser() != user)
             throw new DateBuzzException(ErrorCode.INVALID_USER, String.format("%s는 %d를 삭제할 권한이 없습니다.", userName, recordId));
-        recordRepository.delete(record);
+        recordRepository.deleteRecord(record.getId());
+        hashtagRepository.deleteAllByRecord(record);
+        recordedPlaceRepository.deletePlaceByDeletingRecord(record);
         return recordId;
     }
 
@@ -272,13 +278,13 @@ public class RecordService {
             Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
             if (bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
 
-            int followerCnt = followRepository.countFollower(record.getUser());
+            int followerCnt = followRepository.countFollowed(record.getUser().getId());
 
-            int followingCnt = followRepository.countFollowing(record.getUser());
+            int followingCnt = followRepository.countFollowing(record.getUser().getId());
 
             int recordCnt = recordRepository.recordCnt(record.getUser());
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt);
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt, recordCnt);
             recordedList.add(recordResponseDto);
 
         }
@@ -322,9 +328,9 @@ public class RecordService {
         // bookmark Cnt
         int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
-        int followerCnt = followRepository.countFollower(record.getUser());
+        int followerCnt = followRepository.countFollowed(record.getUser().getId());
 
-        int followingCnt = followRepository.countFollowing(record.getUser());
+        int followingCnt = followRepository.countFollowing(record.getUser().getId());
 
         int recordCnt = recordRepository.recordCnt(record.getUser());
 
@@ -409,13 +415,13 @@ public class RecordService {
             Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
             if (bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
 
-            int followerCnt = followRepository.countFollower(record.getUser());
+            int followerCnt = followRepository.countFollowed(record.getUser().getId());
 
-            int followingCnt = followRepository.countFollowing(record.getUser());
+            int followingCnt = followRepository.countFollowing(record.getUser().getId());
 
             int recordCnt = recordRepository.recordCnt(record.getUser());
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt);
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt, recordCnt);
             recordedList.add(recordResponseDto);
 
         }
@@ -442,7 +448,7 @@ public class RecordService {
             RecordedPlaceEntity place = recordedPlaceRepository
                     .findByIdAndRecord(placeId.getPlaceId(), record)
                     .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND));
-            recordedPlaceRepository.delete(place);
+            recordedPlaceRepository.deletePlace(place.getId());
             int order = places.indexOf(place);
             for (int i = order + 1; i < places.size(); i++) {
                 places.get(i).reduceOrder();
@@ -506,11 +512,11 @@ public class RecordService {
     public List<FollowListResponseDto> getMyFollower(String name) {
         UserEntity user = userRepository.findByUserName(name)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
-        List<FollowEntity> followList = followRepository.findAllByFollowing(user);
+        List<FollowEntity> followList = followRepository.findAllByFollower(user.getId());
         List<FollowListResponseDto> followInfoList = new ArrayList<>();
         for(FollowEntity follow : followList){
-            int followCnt = followRepository.countFollowing(follow.getFollower());
-            int followingCnt = followRepository.countFollowing(follow.getFollowing());
+            int followCnt = followRepository.countFollowed(follow.getFollower().getId());
+            int followingCnt = followRepository.countFollowing(follow.getFollowed().getId());
             followInfoList.add(FollowListResponseDto.fromFollower(follow, followCnt, followingCnt));
         }
         return followInfoList;
@@ -519,11 +525,8 @@ public class RecordService {
     public Page<RecordResponseDto> getUserRecord(Pageable pageable, String nickname) {
         UserEntity user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", nickname)));
-        List<RecordEntity> records = bookmarkRepository
-                .findAllByUser(user)
-                .stream()
-                .map(BookmarkEntity::getRecord)
-                .toList();
+        List<RecordEntity> records = recordRepository
+                .findAllByUser(user);
         List<RecordResponseDto> recordedList = new ArrayList<>();
         for (RecordEntity record : records) {
             List<RecordedPlaceResponseDto> places = new ArrayList<>();
@@ -568,18 +571,23 @@ public class RecordService {
             Optional<BookmarkEntity> bookmark = bookmarkRepository.findByUserAndRecord(user, record);
             if (bookmark.isPresent() && bookmark.get().getBookmarkStatus() == 1) bookmarkStatus++;
 
-            int followerCnt = followRepository.countFollower(record.getUser());
+            int followerCnt = followRepository.countFollowed(record.getUser().getId());
 
-            int followingCnt = followRepository.countFollowing(record.getUser());
+            int followingCnt = followRepository.countFollowing(record.getUser().getId());
 
             int recordCnt = recordRepository.recordCnt(record.getUser());
 
-            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt);
+            RecordResponseDto recordResponseDto = RecordResponseDto.fromRecord(record, places, vibeTags, activityTags, customTags, likeStatus, likeCnt, bookmarkStatus, bookmarkCnt, followingCnt, followerCnt, recordCnt, recordCnt);
             recordedList.add(recordResponseDto);
 
         }
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), recordedList.size());
         return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
+    }
+
+    public void sort(String sort, List<RecordResponseDto> recordedList){
+        if(sort.equals("latest"))recordedList.sort(Comparator.comparing(RecordResponseDto::getCreatedAt).reversed());
+        if(sort.equals("popular"))recordedList.sort(Comparator.comparing(RecordResponseDto::getLikeCnt).reversed());
     }
 }

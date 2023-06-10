@@ -24,11 +24,11 @@ public class FollowService {
     public Void follow(FollowRequestDto followName, String name) {
         UserEntity user = userRepository.findByUserName(name)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
-        UserEntity followingUser = userRepository.findByNickname(followName.getNickName())
+        UserEntity followingUser = userRepository.findByNickname(followName.getNickname())
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
-        Optional<FollowEntity> follow = followRepository.findByFollowingAndFollower(followingUser, user);
+        Optional<FollowEntity> follow = followRepository.findByFollowedAndFollower(followingUser, user);
         follow.ifPresent(FollowEntity::updateFollow);
-        if (follow.isEmpty())followRepository.save(FollowEntity.following(followingUser, user));
+        if (follow.isEmpty()) followRepository.save(FollowEntity.following(followingUser, user));
         return null;
     }
 }

@@ -12,11 +12,11 @@ import org.hibernate.annotations.Where;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "\"users\"")
-@SQLDelete(sql = "update users set deleted_at = now() where id = ?")
-@Where(clause = "deleted_at is null")
 @Getter
 @NoArgsConstructor
 public class UserEntity {
@@ -29,6 +29,10 @@ public class UserEntity {
     private String profileImg;
     private String nickname;
     private String email;
+    @OneToMany(mappedBy = "followed")
+    private List<FollowEntity> followedList = new ArrayList<>();
+    @OneToMany(mappedBy = "follower")
+    private List<FollowEntity> follower = new ArrayList<>();
 
     private Timestamp createdAt;
     private Timestamp updatedAt;

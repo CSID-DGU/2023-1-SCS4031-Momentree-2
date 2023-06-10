@@ -64,9 +64,9 @@ public class SearchService {
             // bookmark Cnt
             int bookmarkCnt = bookmarkRepository.countByRecord(record);
 
-            int followerCnt = followRepository.countFollower(record.getUser());
+            int followerCnt = followRepository.countFollowed(record.getUser().getId());
 
-            int followingCnt = followRepository.countFollowing(record.getUser());
+            int followingCnt = followRepository.countFollowing(record.getUser().getId());
 
             int recordCnt = recordRepository.recordCnt(record.getUser());
 

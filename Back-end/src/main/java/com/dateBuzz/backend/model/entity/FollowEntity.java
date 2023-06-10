@@ -15,16 +15,16 @@ public class FollowEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "following_id")
-    private UserEntity following;
+    @JoinColumn(name = "followed_id")
+    private UserEntity followed;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follower_id")
     private UserEntity follower;
 
     private int followStatus;
 
-    private FollowEntity(UserEntity following, UserEntity follower) {
-        this.following = following;
+    private FollowEntity(UserEntity followed, UserEntity follower) {
+        this.followed = followed;
         this.follower = follower;
         this.followStatus = 1;
     }
