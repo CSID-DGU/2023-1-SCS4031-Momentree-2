@@ -56,10 +56,4 @@ public class AuthenticationConfig implements WebMvcConfigurer {
                 .allowCredentials(true);
     }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/community/*",
-                "/*");
-    }
-
 }
