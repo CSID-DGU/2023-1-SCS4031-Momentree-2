@@ -33,9 +33,6 @@ jobs:
       run: |
         cd ./Back-end/src/main/resources
         echo "${{ secrets.APPLICATION_YAML }}" > ./application.yaml
-        
-    - name: Move JAR to Docker context
-      run: mv ./Back-end/build/libs/*.jar ./Back-end/app.jar
       
     - name: Build with Gradle
       run: ./gradlew clean build
