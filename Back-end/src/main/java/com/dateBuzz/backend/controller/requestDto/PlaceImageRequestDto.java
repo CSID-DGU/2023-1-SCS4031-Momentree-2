@@ -12,7 +12,6 @@ public class PlaceImageRequestDto {
     private Long placeId;
     private int orders;
     private byte[] imgFormData;
-    private String imgUrl;
     private String fileName;
     private String contentType;
 }
