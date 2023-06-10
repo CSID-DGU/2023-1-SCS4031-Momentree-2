@@ -35,8 +35,9 @@ jobs:
         echo "${{ secrets.APPLICATION_YAML }}" > ./application.yaml
       
     - name: Build with Gradle
-      run: ../../../gradlew clean build
-      
+      run: |
+        cd ../../../
+        ./gradlew clean build
     - name: Login to DockerHub
       uses: docker/login-action@v1 
       with:
