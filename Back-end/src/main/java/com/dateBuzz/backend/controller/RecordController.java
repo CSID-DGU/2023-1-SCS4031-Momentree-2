@@ -20,13 +20,15 @@ public class RecordController {
     private final RecordService recordService;
 
     @GetMapping("")
-    private Response<Page<RecordResponseDto>> list(@PageableDefault(size = 5, sort = "recordedID", direction = Sort.Direction.ASC) Pageable pageable){
-        return Response.success(recordService.getList(pageable));
+    private Response<Page<RecordResponseDto>> list(@PageableDefault(size = 5, sort = "recordedID", direction = Sort.Direction.ASC) Pageable pageable,
+                                                   @RequestParam("sort") String sort){
+        return Response.success(recordService.getList(pageable, sort));
     }
 
     @GetMapping("/login")
-    private Response<Page<RecordResponseDto>> listLogin(@PageableDefault(size = 5, sort = "recordedID", direction = Sort.Direction.ASC) Pageable pageable, Authentication authentication){
-        return Response.success(recordService.getListLogin(pageable, authentication.getName()));
+    private Response<Page<RecordResponseDto>> listLogin(@PageableDefault(size = 5, sort = "recordedID", direction = Sort.Direction.ASC) Pageable pageable, Authentication authentication,
+                                                        @RequestParam("sort") String sort){
+        return Response.success(recordService.getListLogin(pageable, authentication.getName(), sort));
     }
 
     @PostMapping("")
