@@ -25,5 +25,5 @@ public interface RecordedPlaceRepository extends JpaRepository<RecordedPlaceEnti
     void deletePlace(@Param("placeId") Long placeId);
     @Modifying
     @Query(value = "update RecordedPlaceEntity place set place.deletedAt = now() where place.record = :record")
-    void deletePlaceByDeletingRecord(@Param("record")RecordEntity record);
+    List<RecordedPlaceEntity> deleteAllPlaceByDeletingRecord(@Param("record")RecordEntity record);
 }
