@@ -28,48 +28,6 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-
-    - name: Overwrite application.yaml with Secrets
-      run: |
-        cd ./Back-end
-            echo 
-        "spring:
-          datasource:
-            url: \${{ secrets.DATASOURCE_URL }}
-            username: \${{ secrets.DATASOURCE_USERNAME }}
-            password: \${{ secrets.DATASOURCE_PASSWORD }}
-            driver-class-name: org.mariadb.jdbc.Driver
-          jpa:
-            hibernate:
-              ddl-auto: update
-            properties:
-              hibernate:
-                #show_sql: true
-                format_sql: true
-          data:
-            redis:
-              url:
-          mvc:
-            decodeCharset: UTF-8
-            urlEncoding:
-              charset: UTF-8
-        jwt:
-          secret-key: \${{ secrets.TOKEN_SECRET_KEY }}
-          token:
-            expired-time-ms: \${{ secrets.TOKEN_EXPIRE_TIME }}
-        cloud:
-          aws:
-            credentials:
-              accessKey: \${{ secrets.CLOUD_ACCESS_KEY }}
-              secretKey: \${{ secrets.CLOUD_SECRET_KEY }}
-            region:
-              static: ap-northeast-2
-            s3:
-              bucket: datebuzz-bucket
-        bot:
-          token: \${{ secrets.BOT_TOKEN }}
-          username: \${{ secrets.BOT_USER_NAME }}
-          chatId: \${{ secrets.BOT_CHAT_ID }}" > ./src/main/resources/application.yaml
       
     - name: Install Gradle
       run: |
