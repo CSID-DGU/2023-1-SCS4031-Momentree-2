@@ -35,11 +35,16 @@ jobs:
         echo "${{ secrets.APPLICATION_YAML }}" > ./application.yaml
       shell: bash
       
+    - name: Install Gradle
+      run: |
+        wget https://services.gradle.org/distributions/gradle-7.6.1-bin.zip
+        unzip -d $HOME/gradle gradle-7.6.1-bin.zip
+        echo "export PATH=\$HOME/gradle/gradle-7.6.1/bin:\$PATH" >> $HOME/.bashrc
+        source $HOME/.bashrc
+
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-      with:
-        arguments: build
-        project-dir: ./Back-end
+      run: |
+        gradle clean build
 
       
     - name: Login to DockerHub
