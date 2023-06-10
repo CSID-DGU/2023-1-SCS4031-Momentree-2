@@ -4,7 +4,6 @@ import com.dateBuzz.backend.model.entity.FollowEntity;
 import com.dateBuzz.backend.model.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,13 +12,14 @@ import java.util.Optional;
 @Repository
 public interface FollowRepository extends JpaRepository<FollowEntity, Long> {
 
-    Optional<FollowEntity> findByFollowingAndFollower(UserEntity following, UserEntity follower);
+    Optional<FollowEntity> findByFollowedAndFollower(UserEntity followed, UserEntity follower);
 
-    @Query(value = "select count(*) from FollowEntity entity where entity.following = :user and entity.followStatus = 1")
-    Integer countFollower(@Param("user") UserEntity user);
+    @Query(value = "select count(*) from follow where follower_id = ?1 and follow_status = 1", nativeQuery = true)
+    Integer countFollowed(Long userId);
 
-    @Query(value = "select count(*) from FollowEntity entity where entity.follower = :user and entity.followStatus = 1")
-    Integer countFollowing(@Param("user") UserEntity user);
+    @Query(value = "select count(*) from follow where followed_id = ?1 and follow_status = 1", nativeQuery = true)
+    Integer countFollowing(Long userId);
 
-    List<FollowEntity> findAllByFollowing(UserEntity user);
+    @Query(value = "select * from follow where follower_id = ?1 and follow_status = 1", nativeQuery = true)
+    List<FollowEntity> findAllByFollower(Long userId);
 }
