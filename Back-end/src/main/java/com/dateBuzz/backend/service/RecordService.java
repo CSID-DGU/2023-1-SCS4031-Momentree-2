@@ -206,7 +206,7 @@ public class RecordService {
 
         int isFollowing = 0;
         Optional<FollowEntity> follow = followRepository.findByFollowedAndFollower(record.getUser(), user);
-        if(follow.isPresent() && follow.get().getFollowStatus() == 1) isFollowing = 1;
+        if (follow.isPresent() && follow.get().getFollowStatus() == 1) isFollowing = 1;
 
         int followerCnt = followRepository.countFollowed(record.getUser().getId());
 
@@ -226,7 +226,10 @@ public class RecordService {
             throw new DateBuzzException(ErrorCode.INVALID_USER, String.format("%s는 %d를 삭제할 권한이 없습니다.", userName, recordId));
         recordRepository.deleteRecord(record.getId());
         hashtagRepository.deleteAllByRecord(record);
-        recordedPlaceRepository.deletePlaceByDeletingRecord(record);
+        List<RecordedPlaceEntity> places = recordedPlaceRepository.deleteAllPlaceByDeletingRecord(record);
+        for (RecordedPlaceEntity place : places) {
+            placeImgRepository.deleteAllByRecordedPlace(place);
+        }
         return recordId;
     }
 
@@ -449,6 +452,7 @@ public class RecordService {
                     .findByIdAndRecord(placeId.getPlaceId(), record)
                     .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND));
             recordedPlaceRepository.deletePlace(place.getId());
+            placeImgRepository.deleteAllByRecordedPlace(place);
             int order = places.indexOf(place);
             for (int i = order + 1; i < places.size(); i++) {
                 places.get(i).reduceOrder();
@@ -488,7 +492,7 @@ public class RecordService {
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
         RecordEntity record = recordRepository.findByUserAndId(user, recordId)
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 가 작성한 %d 게시물이 존재하지 않습니다.", name, recordId)));
-        for(ModifyRecordedPlaceInfoRequestDto info : requestDto.getModifyInfo()){
+        for (ModifyRecordedPlaceInfoRequestDto info : requestDto.getModifyInfo()) {
             RecordedPlaceEntity changingPlace = recordedPlaceRepository.findByIdAndRecord(info.getPlaceId(), record).orElseThrow(() -> new DateBuzzException(ErrorCode.INVALID_USER, "해당 기록에는 삭제하려는 장소가 존재하지 않습니다."));
             changingPlace.modifyPlaceInfo(info);
         }
@@ -502,7 +506,7 @@ public class RecordService {
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND, String.format("%s 가 작성한 %d 게시물이 존재하지 않습니다.", name, recordId)));
 
         // requestDto 돌면서 순서를 변경
-        for(RecordedOrder order : requestDto.getChangingOrders()){
+        for (RecordedOrder order : requestDto.getChangingOrders()) {
             RecordedPlaceEntity place = recordedPlaceRepository.findByIdAndRecord(order.getPlaceId(), record).orElseThrow(() -> new DateBuzzException(ErrorCode.DATE_NOT_FOUND));
             place.changeOrder(order.getNewOrders());
         }
@@ -514,7 +518,7 @@ public class RecordService {
                 .orElseThrow(() -> new DateBuzzException(ErrorCode.USER_NOT_FOUND, String.format("%s 는 없는 유저입니다.", name)));
         List<FollowEntity> followList = followRepository.findAllByFollower(user.getId());
         List<FollowListResponseDto> followInfoList = new ArrayList<>();
-        for(FollowEntity follow : followList){
+        for (FollowEntity follow : followList) {
             int followCnt = followRepository.countFollowed(follow.getFollower().getId());
             int followingCnt = followRepository.countFollowing(follow.getFollowed().getId());
             followInfoList.add(FollowListResponseDto.fromFollower(follow, followCnt, followingCnt));
@@ -586,8 +590,8 @@ public class RecordService {
         return new PageImpl<>(recordedList.subList(start, end), pageable, recordedList.size());
     }
 
-    public void sort(String sort, List<RecordResponseDto> recordedList){
-        if(sort.equals("latest"))recordedList.sort(Comparator.comparing(RecordResponseDto::getCreatedAt).reversed());
-        if(sort.equals("popular"))recordedList.sort(Comparator.comparing(RecordResponseDto::getLikeCnt).reversed());
+    public void sort(String sort, List<RecordResponseDto> recordedList) {
+        if (sort.equals("latest")) recordedList.sort(Comparator.comparing(RecordResponseDto::getCreatedAt).reversed());
+        if (sort.equals("popular")) recordedList.sort(Comparator.comparing(RecordResponseDto::getLikeCnt).reversed());
     }
 }

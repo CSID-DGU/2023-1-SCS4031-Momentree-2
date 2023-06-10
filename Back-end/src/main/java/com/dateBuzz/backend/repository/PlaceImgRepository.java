@@ -12,4 +12,5 @@ import java.util.List;
 public interface PlaceImgRepository extends JpaRepository<PlaceImgEntity, Long> {
     @Query(value = "select entity from PlaceImgEntity entity where entity.recordedPlace = :place order by entity.orders asc ")
     List<PlaceImgEntity> findAllByRecordedPlace(RecordedPlaceEntity place);
+    void deleteAllByRecordedPlace(RecordedPlaceEntity recordedPlace);
 }
