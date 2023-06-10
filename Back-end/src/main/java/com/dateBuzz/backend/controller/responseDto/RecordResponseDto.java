@@ -22,15 +22,13 @@ public class RecordResponseDto {
     private String recordContent;
     @JsonFormat(pattern = datePattern)
     private Timestamp createdAt;
-
     private String dateDate;
-
-    // TODO: 미개발로 인해 default 값 부여, 이후 개발 시 추가 예정
-    private int bookMarkStatus;
+    private int isBookmark;
     private int likeStatus;
     private int likeCnt;
     private int bookMarkCnt;
     private int recordCnt;
+    private int isFollowing;
 
     private List<RecordedPlaceResponseDto> recordedPlaces;
     private List<HashtagResponseDto> VibeTags;
@@ -38,7 +36,7 @@ public class RecordResponseDto {
     private List<HashtagResponseDto> customTags;
 
     @Builder
-    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags, int likeStatus, int likeCnt, int bookMarkStatus, int bookMarkCnt, int followingCnt, int followerCnt, int recordCnt){
+    public static RecordResponseDto fromRecord(RecordEntity record, List<RecordedPlaceResponseDto> recordedPlaces, List<HashtagResponseDto> vibeTags, List<HashtagResponseDto> activityTags, List<HashtagResponseDto> customTags, int likeStatus, int likeCnt, int bookMarkStatus, int bookMarkCnt, int followingCnt, int followerCnt, int isFollowing, int recordCnt){
         return new RecordResponseDto(
                 record.getId(),
                 record.getUser().getNickname(),
@@ -54,6 +52,7 @@ public class RecordResponseDto {
                 likeCnt,
                 bookMarkCnt,
                 recordCnt,
+                isFollowing,
                 recordedPlaces,
                 vibeTags,
                 activityTags,
@@ -78,6 +77,7 @@ public class RecordResponseDto {
                 likeCnt,
                 bookMarkCnt,
                 recordCnt,
+                0,
                 recordedPlaces,
                 vibeTags,
                 activityTags,
