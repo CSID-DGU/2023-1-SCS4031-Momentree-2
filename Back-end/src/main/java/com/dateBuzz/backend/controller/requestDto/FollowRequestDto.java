@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @Getter
 public class FollowRequestDto {
 
-    private String nickName;
+    private String nickname;
 }
