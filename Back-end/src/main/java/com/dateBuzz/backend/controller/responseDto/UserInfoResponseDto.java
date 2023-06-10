@@ -19,6 +19,6 @@ public class UserInfoResponseDto {
                 follower,
                 following,
                 recordCnt,
-                "");
+                user.getProfileImg());
     }
 }
