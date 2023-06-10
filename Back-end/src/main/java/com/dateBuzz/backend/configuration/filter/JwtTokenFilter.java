@@ -35,27 +35,24 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         // header 에 유효한 값이 없을 때
         if(header == null || !header.startsWith("Bearer ")){
-            log.error("Error occurs while getting header. header is null or invalid");
+            // 토큰이 없는 경우 통과시킴
             filterChain.doFilter(request, response);
             return;
         }
-
         // header 가 정상적으로 있는 경우
         try{
             final String token = header.split(" ")[1].trim();
 
-            //Todo : check token is valid
+            // 토큰 유효성 검사
             if(JwtTokenUtils.isExpired(token, key)){
                 log.error("key is expired");
                 filterChain.doFilter(request, response);
                 return;
             }
-
-            //Todo : get userName from token
+            // 토큰에서 userName 가져오기
             String userName = JwtTokenUtils.getUserName(token, key);
 
-
-            //Todo : check the userName is valid
+            // userName이 유효한지 다시 확인
             User user = userService.loadUserByUserName(userName);
             // 다시 request에 넣어서 controller로 보내주는 부분
             // 인증된 유저 정보를 넣어준다.
