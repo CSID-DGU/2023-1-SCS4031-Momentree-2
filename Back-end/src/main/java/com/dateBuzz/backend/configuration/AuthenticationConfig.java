@@ -50,8 +50,9 @@ public class AuthenticationConfig implements WebMvcConfigurer {
     }
     @Override
     public void addCorsMappings(final CorsRegistry registry) {
+        String dockerAppHost = "3.34.203.108";
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "https://main.dj5b233u1e7ny.amplifyapp.com", "https://www.datebuzz.net", "http://3.34.203.108", "https://3.34.203.108")
+                .allowedOrigins("http://localhost:3000", "https://main.dj5b233u1e7ny.amplifyapp.com", "https://www.datebuzz.net",  "http://" + dockerAppHost, "https://" + dockerAppHost)
                 .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH")
                 .allowCredentials(true);
     }
