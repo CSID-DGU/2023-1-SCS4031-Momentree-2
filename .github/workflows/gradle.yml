@@ -55,8 +55,8 @@ jobs:
     - name: Build and push Docker image
       run: |
         cd ./Back-end
-        docker build -t datebuzz/datebuzz-execute .
-        docker push datebuzz/datebuzz-execute
+        docker build -t shoeone/datebuzz-execute .
+        docker push shoeone/datebuzz-execute
         
     - name: SSH and Deploy to EC2
       uses: appleboy/ssh-action@master
