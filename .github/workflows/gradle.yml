@@ -42,6 +42,8 @@ jobs:
         touch ./Back-end/src/main/resources/application.properties
         echo "${{ secrets.APPLICATION_YAML }}" > ./Back-end/src/main/resources/application.yml
         cat ./Back-end/src/main/resources/application.yml
+        cd ./Back-end
+        ./gradlew build
 
       
     - name: Login to DockerHub
