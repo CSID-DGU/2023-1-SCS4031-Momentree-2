@@ -43,7 +43,7 @@ jobs:
         echo "${{ secrets.APPLICATION_YAML }}" > ./Back-end/src/main/resources/application.yml
         cat ./Back-end/src/main/resources/application.yml
         cd ./Back-end
-        ./gradlew build
+        gradle clean build
 
       
     - name: Login to DockerHub
