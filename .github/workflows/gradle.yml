@@ -39,8 +39,9 @@ jobs:
 
     - name: Build with Gradle
       run: |
-        cd ./Back-end
-        gradle clean build
+        touch .Back-end/src/main/resources/application.properties
+        echo "${{ secrets.APPLICATION_YAML }}" > ./src/main/resources/application.yml
+        cat ./src/main/resources/application.yml
 
       
     - name: Login to DockerHub
