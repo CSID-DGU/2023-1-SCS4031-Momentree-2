@@ -59,7 +59,8 @@ jobs:
         
     - name: Build and push Docker image
       run: |
-        docker build -t datebuzz/datebuzz-execute ./Back-end
+        cd ./Back-end
+        docker build -t datebuzz/datebuzz-execute 
         docker push datebuzz/datebuzz-execute
         
     - name: SSH and Deploy to EC2
