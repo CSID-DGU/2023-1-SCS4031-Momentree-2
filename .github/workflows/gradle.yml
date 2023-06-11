@@ -52,11 +52,6 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
         
-    - name: Check JAR file
-      run: |
-        ls -l ./Back-end/build/libs/
-        find ./Back-end -name '*.jar'
-        
     - name: Build and push Docker image
       run: |
         cd ./Back-end
