@@ -65,6 +65,8 @@ jobs:
         username: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         script: |
+          chmod 700 ~/.ssh
+          chmod 600 ~/.ssh/authorized_keys
           docker stop dateBuzzExecute || true
           docker rm dateBuzzExecute || true
           docker pull dateBuzz/dateBuzzExecute
