@@ -9,14 +9,17 @@
 
 Back-end Repository  
 
+
 ### 진행 인원  
 Back-end: 이중원  
 Dev-ops: 이중원  
 Front-end: 송우영, 신서영, 이민희  
 Recommend: 신서영
 
+
 ### 진행상황  
 2023.04 ~ 진행중
+
 
 ### 예상 프로젝트 아키텍처
 ![CSID ER-diagram - Page 6](https://github.com/CSID-DGU/2023-1-SCS4031-Momentree-2/assets/85065626/3adee09b-14dd-459a-b784-3320e6dd1cc1)
