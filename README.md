@@ -13,6 +13,7 @@ Back-end Repository
 Back-end: 이중원  
 Dev-ops: 이중원  
 Front-end: 송우영, 신서영, 이민희  
+Recommend: 신서영
 
 ### 진행상황  
 2023.04 ~ 진행중
