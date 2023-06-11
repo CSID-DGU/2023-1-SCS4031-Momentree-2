@@ -11,6 +11,7 @@ Back-end Repository
 
 ### 진행 인원  
 Back-end: 이중원  
+Dev-ops: 이중원  
 Front-end: 송우영, 신서영, 이민희  
 
 ### 진행상황  
