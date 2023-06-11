@@ -67,7 +67,7 @@ jobs:
         script: |
           chmod 700 ~/.ssh
           chmod 600 ~/.ssh/authorized_keys
-          docker stop dateBuzzExecute || true
-          docker rm dateBuzzExecute || true
-          docker pull dateBuzz/dateBuzzExecute
-          docker run -d -p 8080:8080 --name dateBuzzExecute dateBuzz/dateBuzzExecute
+          docker stop datebuzz-execute || true
+          docker rm datebuzz-execute || true
+          docker pull shoeone/datebuzz-execute
+          docker run -d -p 8080:8080 --name datebuzz-execute shoeone/datebuzz-execute
