@@ -41,7 +41,7 @@ jobs:
       run: |
         touch ./Back-end/src/main/resources/application.properties
         echo "${{ secrets.APPLICATION_YAML }}" > ./Back-end/src/main/resources/application.yml
-        cat ./src/main/resources/application.yml
+        cat ./Back-end/src/main/resources/application.yml
 
       
     - name: Login to DockerHub
