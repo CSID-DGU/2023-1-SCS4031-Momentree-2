@@ -39,7 +39,7 @@ jobs:
 
     - name: Build with Gradle
       run: |
-        touch .Back-end/src/main/resources/application.properties
+        touch ./Back-end/src/main/resources/application.properties
         echo "${{ secrets.APPLICATION_YAML }}" > ./src/main/resources/application.yml
         cat ./src/main/resources/application.yml
 
