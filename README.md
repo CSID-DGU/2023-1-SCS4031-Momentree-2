@@ -21,9 +21,9 @@ Recommend: 신서영
 2023.04 ~ 진행중
 
 
-### 예상 프로젝트 아키텍처
-![CSID ER-diagram - Page 6](https://github.com/CSID-DGU/2023-1-SCS4031-Momentree-2/assets/85065626/3adee09b-14dd-459a-b784-3320e6dd1cc1)
+### 프로젝트 아키텍처
+![CSID ER-diagram - Page 11](https://github.com/CSID-DGU/2023-1-SCS4031-Momentree-2/assets/85065626/c81e94ea-7324-4941-ac54-6761ebe02b4b)
 
 
 ### DATABASE
-![CSID ER-diagram - Database ER diagram (crow's foot)](https://github.com/CSID-DGU/2023-1-SCS4031-Momentree-2/assets/85065626/847e3038-4bc7-407e-8c85-9d3bfd7e75e5)
+![CSID ER-diagram - Database ER diagram (crow's foot) (1)](https://github.com/CSID-DGU/2023-1-SCS4031-Momentree-2/assets/85065626/060558f9-55fb-4379-a52e-91bbc761fcd2)
