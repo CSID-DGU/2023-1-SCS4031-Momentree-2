@@ -31,7 +31,8 @@ public class AuthenticationConfig implements WebMvcConfigurer {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.cors().and()
+                .csrf().disable()
                 .authorizeHttpRequests()
                 .requestMatchers(
                         new AntPathRequestMatcher("/**")).permitAll()
@@ -50,11 +51,10 @@ public class AuthenticationConfig implements WebMvcConfigurer {
     }
     @Override
     public void addCorsMappings(final CorsRegistry registry) {
-        String dockerAppHost = "3.34.203.108";
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "https://main.dj5b233u1e7ny.amplifyapp.com", "https://www.datebuzz.net",  "http://" + dockerAppHost, "https://" + dockerAppHost)
+                .allowedOrigins("http://localhost:3000", "https://main.dj5b233u1e7ny.amplifyapp.com", "https://www.datebuzz.net")
                 .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH")
-                .allowCredentials(true);
+                .allowedHeaders("*")
+                .maxAge(3600);
     }
-
 }
