@@ -1,12 +1,16 @@
 # 2023-1-SCS4031-Momentree-2  
 
+### 개선 중인 Repository
+현재 해당 프로젝트의 성능 개선 진행중  
+[Back-end enhancing project repository](https://github.com/shoeone96/dateBuzz_public)
+
 ### 제작 배경    
 데이트 '코스'를 짜기 어려워 하고 다른 사람들의 데이트 코스를 보고 참고하고 싶은 사람들을 위한 커뮤니티 플랫폼
 
 ### 설명  
 - DateBuzz 서비스를 위한 Back-end repository/Recommendation repository  
-- Front-end repository: https://github.com/CSID-DGU/2023-1-SCS4031-Momentree  
-
+- Front-end repository: https://github.com/CSID-DGU/2023-1-SCS4031-Momentree
+  
 Back-end Repository  
 
 
